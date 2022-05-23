@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "808627771301",
+    "project_id": "jackman-336016",
+    "storage_bucket": "jackman-336016.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808627771301:android:cc9c4d238b43517093fa4c",
+        "android_client_info": {
+          "package_name": "com.bot.jackman"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "808627771301-miurp7eftmk9nvuebds9fh2nhh3jg7iv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bot.jackman",
+            "certificate_hash": "23ba2d0519cf8bad5ee99cfbdd752cafc8d09b12"
+          }
+        },
+        {
+          "client_id": "808627771301-7ufeert0ce1a1ad3806hk8md81fhl76q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY90ovw6PFsJASyZ5-OWXkV_kinbDhYvE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "808627771301-7ufeert0ce1a1ad3806hk8md81fhl76q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

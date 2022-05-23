@@ -3,12 +3,13 @@
     "name": "Jackman",
     "slug": "Jackman",
     "version": "1.0.0",
+    "scheme": "mycoolredirect",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#143131"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -17,16 +18,45 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "SKAdNetworkItems": [
+          {
+            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
+          },
+          {
+            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      }
+        "backgroundColor": "#143131"
+      },
+      "package": "com.bot.jackman",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-facebook",
+        {
+          "userTrackingPermission": false
+        }
+      ],
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-notifications",
+        {
+          "color": "#ffffff"
+         
+        }
+      ]
+
+    ]
   }
 }
