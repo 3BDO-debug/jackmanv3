@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { View, ScrollView, TextInput, BackHandler } from 'react-native';
+import { View, ScrollView, TextInput, BackHandler, Alert } from 'react-native';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import createStyles from './styles';
 import CustomText from '../../components/customText';
@@ -39,6 +39,36 @@ const AdditionalInformationView: FC<AdditionalInformationViewProps> = ({
     return true;
   }, []);
 
+  const milageValidator = () => {
+
+    let valid;
+    if (milage[0] === "0" && milage.length !== 1) {
+      valid = false;
+      Alert.alert("Validation error", "Milage cannot starts with '0' ");
+    } else if (milage === "0") {
+      valid = false;
+      Alert.alert("Milage value error", "Milage cannot be '0' ");
+    } else {
+      valid = true;
+    }
+
+    return valid
+
+  };
+
+
+  const phoneNumberValidator = () => {
+    let valid;
+    if (!/^\+201[0-5]+[0-9]+$/.test(phone)) {
+      valid = false;
+      Alert.alert("Validation error", "Phone number not valid");
+    } else {
+      valid = true;
+    }
+    return valid
+  }
+
+
   useEffect(() => {
     const handler = BackHandler.addEventListener(
       'hardwareBackPress',
@@ -67,7 +97,7 @@ const AdditionalInformationView: FC<AdditionalInformationViewProps> = ({
         containerStyle={[styles.nameInput, styles.inputContainer]}
         required={true}
         onChangeText={text => {
-          setFullName(text.trim());
+          setFullName(text);
         }}
       />
 
@@ -79,7 +109,7 @@ const AdditionalInformationView: FC<AdditionalInformationViewProps> = ({
         required={true}
         keyboardType="phone-pad"
         onChangeText={text => {
-          setPhone(text.trim());
+          setPhone(text);
         }}
       />
 
@@ -114,9 +144,10 @@ const AdditionalInformationView: FC<AdditionalInformationViewProps> = ({
         text="CONTINUE"
         textSize={16}
         onPress={() => {
-          if (fullName != userData.name || phone != userData.phoneNumber)
+          if (milageValidator() && phoneNumberValidator()) {
             setBooking({ ...booking, userData: { userFullname: fullName, userPhone: phone, userCarMileage: milage } });
-          navigation.navigate('Booking', { step: '2' });
+            navigation.navigate('Booking', { step: '2' });
+          }
         }}
       />
     </ScrollView>

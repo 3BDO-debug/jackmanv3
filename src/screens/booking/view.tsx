@@ -84,15 +84,23 @@ const BookingView: FC<BookingViewProps> = ({ navigation, route }) => {
 
   const windowWidth = Dimensions.get('window').width;
   const [step, setStep] = useState(1);
-  const [name, setName] = useState(userData.name);
-  const [phone, setPhone] = useState(
-    userData?.phone,
-  );
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [isPress, setIspress] = useState(true);
   const [confirm, setconfirm] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedTimeIndex, setSelectedTimeIndex] = useState(-1);
+
+
+  useEffect(() => {
+    if (booking) {
+      setName(booking?.userData?.userFullname);
+      setPhone(booking?.userData?.userPhone);
+    }
+  }, [booking]);
+
+
 
   const StepItem = ({ number, title }: { number: string; title: string }) => {
     return (
@@ -176,6 +184,7 @@ const BookingView: FC<BookingViewProps> = ({ navigation, route }) => {
   }
 
 
+  console.log("sdds", booking);
 
 
   return (
@@ -245,7 +254,6 @@ const BookingView: FC<BookingViewProps> = ({ navigation, route }) => {
                     size={10}
                     fontFamily="bold"
                   />
-
                   <TouchableOpacity
                     style={{ height: 30 }}
                     onPress={() => {
@@ -294,7 +302,18 @@ const BookingView: FC<BookingViewProps> = ({ navigation, route }) => {
                     textSize={10}
                     fontFamily="regular"
                     onPress={() => {
-                      setIspress(true);
+                      if (name.length === 0) {
+                        Alert.alert("Validation error", "Full name cannot be empty");
+                      }
+                      if (phone.length === 0) {
+                        Alert.alert("Validation error", "Phone number cannot be empty");
+                      }
+
+                      if (name.length > 0 && phone.length > 0) {
+                        setIspress(true);
+                      }
+
+
                     }}
                   />
                 </View>
@@ -412,28 +431,33 @@ const BookingView: FC<BookingViewProps> = ({ navigation, route }) => {
               )}
             </View>
 
-            {booking?.datesData.map((dateData) => <View style={styles.cardBody}>
-              <View style={styles.rowItem}>
-                <DateIcon color={Colors.BLACK} />
-                <CustomText
-                  text={moment(dateData.selectedDate).format('Do MMM')}
-                  color="black"
-                  size={10}
-                  style={styles.textItem}
-                />
-              </View>
+            {booking?.datesData.map((dateData) => {
+              return (
+                <View style={styles.cardBody}>
+                  <View style={styles.rowItem}>
+                    <DateIcon color={Colors.BLACK} width={16} height={16} />
+                    <CustomText
+                      text={moment(dateData.selectedDate).format('Do MMM')}
+                      color="black"
+                      size={10}
+                      style={styles.textItem}
+                    />
+                  </View>
 
-              <View style={[styles.rowItem, styles.rightText]}>
-                <TimeIcon color={Colors.BLACK} />
-                <CustomText
-                  num={1}
-                  text={moment(dateData.time).format('HH.mm')}
-                  color="black"
-                  size={10}
-                  style={styles.textItem}
-                />
-              </View>
-            </View>)}
+                  <View style={[styles.rowItem, styles.rightText]}>
+                    <TimeIcon color={Colors.BLACK} />
+                    <CustomText
+                      num={1}
+                      text={moment(dateData.time).format('HH.mm')}
+                      color="black"
+                      size={10}
+                      style={styles.textItem}
+                    />
+                  </View>
+                </View>
+              )
+            }
+            )}
           </View>
         </>
       )}

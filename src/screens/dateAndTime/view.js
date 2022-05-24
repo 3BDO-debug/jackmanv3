@@ -84,13 +84,15 @@ const DateView = ({
 
   const onTimePickerChange = useCallback(
     (event, selectedTime) => {
-      setCurrentSelectedTime(selectedTime);
-      const selectedDatesCopy = [...selectedDates];
-      setSelectedDates(selectedDatesCopy);
-      selectedDatesCopy[numberOfSelectedDates - 1].time = currentSelectedTime;
-      setSelectedDates(selectedDatesCopy);
-      setCurrentSelectedTime(new Date(Date.now()));
-      setNumberOfTriggeredDateSelection(numberOfTriggeredDateSelection + 1);
+      if (selectedTime) {
+        setCurrentSelectedTime(selectedTime);
+        const selectedDatesCopy = [...selectedDates];
+        setSelectedDates(selectedDatesCopy);
+        selectedDatesCopy[numberOfSelectedDates - 1].time = currentSelectedTime;
+        setSelectedDates(selectedDatesCopy);
+        setCurrentSelectedTime(new Date(Date.now()));
+        setNumberOfTriggeredDateSelection(numberOfTriggeredDateSelection + 1);
+      }
     },
     [selectedDates, numberOfSelectedDates, numberOfTriggeredDateSelection]
   );
@@ -110,6 +112,8 @@ const DateView = ({
   useEffect(() => {
     defaultClosedDates();
   }, []);
+
+  console.log("dsa", new Date().getDate() + 1);
 
   return (
     <View style={styles.container}>
@@ -154,10 +158,9 @@ const DateView = ({
               style={{ marginLeft: 10, transform: [{ rotate: "180deg" }] }}
             />
           }
-          initialDate={new Date()}
           disabledDatesTextStyle={{ color: Colors.PLACEHOLDER }}
           nextComponent={<Arrow style={{ marginRight: 10 }} />}
-          minDate={new Date()}
+          minDate={new Date().getDate() + 1}
           maxDate={
             new Date(
               new Date().getFullYear(),
@@ -171,7 +174,7 @@ const DateView = ({
       </View>
       {showTimePicker && (
         <DateTimePicker
-          value={currentSelectedTime}
+          value={currentSelectedTime || new Date()}
           mode="time"
           display={Platform.OS === "ios" ? "spinner" : "default"}
           is24Hour={false}

@@ -103,7 +103,7 @@ const RegisterView: FC<RegisterViewProps> = ({ navigation }) => {
       plateNo: plate,
       carType: type,
       modelYear: model,
-      manufacturer: selectedCarId,
+      manufacturer: selectedCarId?.toString(),
     }).then((response) => {
       authAxios
         .get('/car/myCars?page=1&limit=100')
@@ -113,16 +113,57 @@ const RegisterView: FC<RegisterViewProps> = ({ navigation }) => {
         })
         .catch(error => console.log('cars no', error));
       Alert.alert("Car has been added successfully");
-    }).catch((error) => Alert.alert("Oppps, someting wrong happened while adding car,"));
+      handleStateResetting();
+    }).catch((error) => {
 
+      if (error?.response?.data?.responseCode === "PARAMETERS_ERROR") {
+        if (error?.response?.data?.message?.includes("plate_no")) {
+          Alert.alert("Error", "Car with this plate number already exists")
+        } else if (error?.response?.data?.message?.includes("chassis_name")) {
+          Alert.alert("Error", "Car with this chassis number already exists")
+        } else {
+          Alert.alert("Error", "Something wrong happened while adding car");
+        }
 
-    setChasi("");
-    setPlate("");
-    setType("");
-    setModel("");
-    setSelectedCarId("");
+      }
+    });
     setCarIsAdding(false);
   }
+
+  const chassisNumberValidator = () => {
+    let valid;
+    if (chasi.length < 5) {
+      valid = false;
+      Alert.alert("Validation error", "Chassis number cannot be less than 5 characters")
+    } else if (chasi.length > 20) {
+      valid = false;
+      Alert.alert("Validation error", "Chassis number cannot be more than 20 characters")
+    } else {
+      valid = true;
+    }
+    return valid
+  };
+
+  const plateNumberValidator = () => {
+    let valid;
+    if (plate.length < 4) {
+      valid = false;
+      Alert.alert("Validation error", "Plate number cannot be less than 4 characters");
+    } else if (plate.length > 8) {
+      valid = false;
+      Alert.alert("Validation error", "Plate number cannot be more than 8 charaters");
+    } else {
+      valid = true;
+    }
+
+    return valid
+  }
+
+  const handleStateResetting = () => {
+    setChasi('');
+    setPlate('');
+    setModel('');
+  };
 
   const styles = useMemo(() => createStyles(), []);
 
@@ -175,6 +216,7 @@ const RegisterView: FC<RegisterViewProps> = ({ navigation }) => {
         onChangeText={text => {
           setChasi(text);
         }}
+        value={chasi}
         error={chassisError != ''}
         caption={chassisError}
         onFocus={() => {
@@ -199,6 +241,7 @@ const RegisterView: FC<RegisterViewProps> = ({ navigation }) => {
         onChangeText={text => {
           setPlate(text);
         }}
+        value={plate}
         onFocus={() => {
           if (favCar) {
             rotation.value = withTiming(0);
@@ -326,6 +369,7 @@ const RegisterView: FC<RegisterViewProps> = ({ navigation }) => {
             setSelectedYear(text);
             setModel(text);
           }}
+          value={model}
           onFocus={() => {
             if (favCar) {
               rotation.value = withTiming(0);
@@ -366,9 +410,12 @@ const RegisterView: FC<RegisterViewProps> = ({ navigation }) => {
             );
           } else setPlateError('');
 
-          if (checkChasi && checkPlate) {
-            handleAddCar();
+          if (chassisNumberValidator() && plateNumberValidator()) {
+            if (checkChasi && checkPlate) {
+              handleAddCar();
+            }
           }
+
         }}
         disabled={actionButtonDisabler()}
       />}

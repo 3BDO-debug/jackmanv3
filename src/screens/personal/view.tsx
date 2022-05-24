@@ -27,6 +27,8 @@ import { FETCH, SET_TOKEN } from '../../redux/actionTypes';
 import payload from '../../api/payload';
 import { AxiosContext } from '../../context/AxiosContext';
 import { AndroidBackHandler } from "react-navigation-backhandler";
+import { useRecoilValue } from 'recoil';
+import phoneTokenAtom from '../../recoil/phoneToken';
 
 
 
@@ -39,7 +41,7 @@ const PersonalView: FC<PersonalViewProps> = ({ route, navigation }) => {
 
   const state = useSelector((state: RootStateOrAny) => state.MainState);
   const messageError = state.messageError;
-  const phoneToken = state.phoneToken;
+  const phoneToken = useRecoilValue(phoneTokenAtom);
 
   const [isLocation, setIsLocation] = useState(false);
 
@@ -93,17 +95,23 @@ const PersonalView: FC<PersonalViewProps> = ({ route, navigation }) => {
       locationName: "قسم التبين",
       birthDate: textDate,
       favManufacturer: selectedCarId,
-      occupation: occu
+      occupation: "occu"
     };
 
     await publicAxios.post("/user/auth/signup", data)
       .then((response) => {
+        Alert.alert("Account created", "Your account had been created successfully.")
         console.log("hustle", response.data.result);
+        navigation.navigate("SignIn");
 
       })
       .catch((error) => {
         console.log("error", error.response.data);
-        Alert.alert("Error", "Error while trying to signup, we are working on it.");
+        if (error.response.data.responseCode === "USER_EXISTS") {
+          Alert.alert("Email exists", "The email you entered is already in use !")
+        } else {
+          Alert.alert("Error", "Error while trying to signup, we are working on it.");
+        }
       })
   };
 

@@ -97,16 +97,18 @@ const EditCarView: FC<EditCarViewProps> = ({ route, navigation }) => {
         chassisName: chasi,
         plateNo: plate,
         carType: car?.carType,
-        modelYear: parseInt(model, 10),
-        manufacturer: car?.manufacturer?.id
+        modelYear: model?.toString(),
+        manufacturer: car?.manufacturer?.id?.toString()
       };
-      await authAxios.patch("/car/updateMyCar", data).then(() => Alert.alert("Updated", "Car updated successfully!!!", [{ text: "cancel", onPress: () => false, style: "cancel" }, { text: "Go back to main menu", onPress: () => navigation.goBack() }])).catch((error) => {
-        console.log("error updating car", error);
-        Alert.alert("OPPSS", "Error while updating car!!");
-      })
+      await authAxios.patch("/car/updateMyCar", data)
+        .then(() => Alert.alert("Updated", "Car updated successfully!!!", [{ text: "cancel", onPress: () => false, style: "cancel" }, { text: "Go back to main menu", onPress: () => navigation.goBack() }]))
+        .catch((error) => {
+          console.log("error updating car", error.response);
+          Alert.alert("OPPSS", "Error while updating car!!");
+        })
 
     } catch (error) {
-      console.log("Main logic error", error)
+      console.log("Main logic error", error.response)
       Alert.alert("Error", "Something wrong happened, we are getting it fixed soon.")
     }
 
@@ -173,9 +175,12 @@ const EditCarView: FC<EditCarViewProps> = ({ route, navigation }) => {
 
   useEffect(() => {
     const currentYear = new Date().getFullYear();
-    if (model > currentYear || model < 1000) {
+    if (model > currentYear || model < 1000 && model.length === 4) {
       Alert.alert("Validation error", "Model year cannot be more than the current year");
       setDisableForValidation(true);
+    } else if (model === "") {
+      setDisableForValidation(true);
+      Alert.alert("Validation error", "Model year cannot be empty");
     } else {
       setDisableForValidation(false);
     }
@@ -184,28 +189,41 @@ const EditCarView: FC<EditCarViewProps> = ({ route, navigation }) => {
 
   /* Chassis number validator */
 
-  useEffect(() => {
+  const chassisNumberValidator = useCallback(() => {
     if (car) {
       const chassisValidator = /^(?=.*?[a-zA-Z])(?=.*?[0-9]).*$/.test(chasi);
+      let valid;
       if (!chassisValidator && chasi !== "") {
+        valid = false;
         Alert.alert("Validation error", "Chassis number invalid");
       } else if (chasi === "") {
+        valid = false
         Alert.alert("Validation error", "Chassis number cannot be empty");
+      } else {
+        valid = true;
       }
+      return valid;
     }
   }, [chasi, car])
 
 
   /* Plate number validator */
 
-  useEffect(() => {
+  const plateNumberValidator = useCallback(() => {
+    let valid;
     if (car) {
       const plateNumberValidator = /^(?=.*?[a-zA-Z])(?=.*?[0-9]).*$/.test(plate);
       if (!plateNumberValidator && plate !== "") {
+        valid = false;
         Alert.alert("Validation error", "Plate number is invalid");
       } else if (plate === "") {
+        valid = false;
         Alert.alert("Validation error", "Plate number cannot be empty");
+      } else {
+        valid = true;
       }
+
+      return valid;
     }
   }, [plate, car])
 
@@ -371,12 +389,16 @@ const EditCarView: FC<EditCarViewProps> = ({ route, navigation }) => {
             styles.confirtBtn,
             {
               backgroundColor:
-                carInfoNotEdited ? Colors.GRAY : Colors.BUTTON
+                carInfoNotEdited || disableForValidation ? Colors.GRAY : Colors.BUTTON
             },
           ]}
           text="SAVE CHANGES"
           textSize={16}
-          onPress={updateCarRequest}
+          onPress={() => {
+            if (chassisNumberValidator() && plateNumberValidator()) {
+              updateCarRequest();
+            }
+          }}
           disabled={
             carInfoNotEdited || disableForValidation
           }

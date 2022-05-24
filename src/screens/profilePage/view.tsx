@@ -1,6 +1,8 @@
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
-import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Alert,
+  BackHandler,
   Dimensions,
   FlatList,
   Image,
@@ -18,6 +20,8 @@ import { Colors } from '../../constants/colors';
 import createStyles from './styles';
 import authAtom from '../../recoil/auth';
 import carsAtom from '../../recoil/cars';
+import { AndroidBackHandler } from "react-navigation-backhandler";
+
 
 interface ProfileViewProps {
   navigation: NavigationProp<ParamListBase>;
@@ -39,6 +43,22 @@ const ProfileView: FC<ProfileViewProps> = ({ navigation, route }) => {
 
   const scrollRef = useRef();
 
+  const backButtonHandler = useCallback(() => {
+    /*
+     *   Returning `true` from `onBackButtonPressAndroid` denotes that we have handled the event,
+     *   and react-navigation's lister will not get called, thus not popping the screen.
+     *
+     *   Returning `false` will cause the event to bubble up and react-navigation's listener will pop the screen.
+     * */
+
+    if (route.name === "ProfilePage") {
+      navigation.navigate("Home");
+      return true;
+    }
+
+    return false;
+  }, [route.name]);
+
   useEffect(() => {
     if (userData.name) {
       let splitName = userData?.name?.split(' ');
@@ -49,124 +69,135 @@ const ProfileView: FC<ProfileViewProps> = ({ navigation, route }) => {
     } else scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
   }, [route.params?.type]);
 
-  return (
-    <ScrollView
-      style={styles.container}
-      nestedScrollEnabled
-      keyboardShouldPersistTaps={'handled'}>
-      <View style={styles.circle}>
-        {userData.photo ? (
-          <Image
-            source={userData.photo}
-            style={{ width: '100%', height: '100%' }}
-          />
-        ) : (
-          <CustomText
-            text={
-              userData?.name?.split(' ').length > 1
-                ? userData?.name?.split(' ')[0][0] +
-                userData?.name?.split(' ')[1][0]
-                : userData?.name?.split(' ')[0][0]
-            }
-            size={32}
-            fontFamily="bold"
-            color="black"
-            style={{ with: 160 }}
-          />
-        )}
-      </View>
-      <CustomText
-        text={userData.name}
-        size={26}
-        fontFamily="bold"
-        num={1}
-        style={styles.text}
-      />
-      <View style={styles.tapsContainer}>
-        <TouchableOpacity
-          style={[
-            styles.buttons,
-            styles.button1,
-            {
-              borderBottomColor: !index ? Colors.BUTTON : Colors.WHITE,
-              borderBottomWidth: !index ? 2 : 1,
-            },
-          ]}
-          onPress={() => {
-            scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
-          }}>
-          <CustomText text="CARS" size={12} fontFamily="bold" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.buttons,
-            styles.button2,
-            {
-              borderBottomColor: !index ? Colors.WHITE : Colors.BUTTON,
-              borderBottomWidth: !index ? 1 : 2,
-            },
-          ]}
-          onPress={() => {
-            scrollRef.current.scrollToEnd({ animated: true });
-          }}>
-          <CustomText text="SETTINGS" size={12} fontFamily="bold" />
-        </TouchableOpacity>
-      </View>
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
+    };
+  }, []);
 
+
+  return (
+    <AndroidBackHandler onBackPress={backButtonHandler}>
       <ScrollView
-        keyboardShouldPersistTaps={'handled'}
-        horizontal={true}
-        pagingEnabled={true}
-        ref={scrollRef}
-        scrollEnabled={false}
-        showsHorizontalScrollIndicator={false}
-        onScroll={event => {
-          setIndex(Math.round(event.nativeEvent.contentOffset.x / windowWidth));
-        }}>
-        <View style={{ width: windowWidth, paddingHorizontal: 20 }}>
-          <View style={styles.listContainer}>
-            {cars.length != 0 ? (
-              <FlatList
-                nestedScrollEnabled
-                showsVerticalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={styles.seperator} />}
-                data={cars}
-                renderItem={({ item }) => {
-                  return (
-                    <CarCard
-                      item={item}
-                      onHistoryPress={() => {
-                        navigation.navigate('CarHistory', { carId: item.id });
-                      }}
-                      onEditPress={() => {
-                        navigation.navigate('EditCar', { carId: item.id });
-                      }}
-                    />
-                  );
-                }}
-              />
-            ) : (
-              <CustomText
-                size={11}
-                text="There are no cars"
-                style={styles.noCars}
-              />
-            )}
-          </View>
-          <CustomButton
-            containerStyle={styles.confirtBtn}
-            text="ADD NEW CAR"
-            textSize={16}
+        style={styles.container}
+        nestedScrollEnabled
+        keyboardShouldPersistTaps={'handled'}>
+        <View style={styles.circle}>
+          {userData?.photo ? (
+            <Image
+              source={userData?.photo}
+              style={{ width: '100%', height: '100%' }}
+            />
+          ) : (
+            <CustomText
+              text={
+                userData?.name?.split(' ').length > 1
+                  ? userData?.name?.split(' ')[0][0] +
+                  userData?.name?.split(' ')[1][0]
+                  : userData?.name?.split(' ')[0][0]
+              }
+              size={32}
+              fontFamily="bold"
+              color="black"
+              style={{ with: 160 }}
+            />
+          )}
+        </View>
+        <CustomText
+          text={userData.name}
+          size={26}
+          fontFamily="bold"
+          num={1}
+          style={styles.text}
+        />
+        <View style={styles.tapsContainer}>
+          <TouchableOpacity
+            style={[
+              styles.buttons,
+              styles.button1,
+              {
+                borderBottomColor: !index ? Colors.BUTTON : Colors.WHITE,
+                borderBottomWidth: !index ? 2 : 1,
+              },
+            ]}
             onPress={() => {
-              navigation.navigate('RegisterCar');
-            }}
-          />
+              scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
+            }}>
+            <CustomText text="CARS" size={12} fontFamily="bold" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.buttons,
+              styles.button2,
+              {
+                borderBottomColor: !index ? Colors.WHITE : Colors.BUTTON,
+                borderBottomWidth: !index ? 1 : 2,
+              },
+            ]}
+            onPress={() => {
+              scrollRef.current.scrollToEnd({ animated: true });
+            }}>
+            <CustomText text="SETTINGS" size={12} fontFamily="bold" />
+          </TouchableOpacity>
         </View>
-        <View style={{ width: windowWidth, paddingHorizontal: 20 }}>
-          <ProfileSitting />
-        </View>
+
+        <ScrollView
+          keyboardShouldPersistTaps={'handled'}
+          horizontal={true}
+          pagingEnabled={true}
+          ref={scrollRef}
+          scrollEnabled={false}
+          showsHorizontalScrollIndicator={false}
+          onScroll={event => {
+            setIndex(Math.round(event.nativeEvent.contentOffset.x / windowWidth));
+          }}>
+          <View style={{ width: windowWidth, paddingHorizontal: 20 }}>
+            <View style={styles.listContainer}>
+              {cars.length != 0 ? (
+                <FlatList
+                  nestedScrollEnabled
+                  showsVerticalScrollIndicator={false}
+                  ItemSeparatorComponent={() => <View style={styles.seperator} />}
+                  data={cars}
+                  renderItem={({ item }) => {
+                    return (
+                      <CarCard
+                        item={item}
+                        onHistoryPress={() => {
+                          navigation.navigate('CarHistory', { carId: item.id });
+                        }}
+                        onEditPress={() => {
+                          navigation.navigate('EditCar', { carId: item.id });
+                        }}
+                      />
+                    );
+                  }}
+                />
+              ) : (
+                <CustomText
+                  size={11}
+                  text="There are no cars"
+                  style={styles.noCars}
+                />
+              )}
+            </View>
+            <CustomButton
+              containerStyle={styles.confirtBtn}
+              text="ADD NEW CAR"
+              textSize={16}
+              onPress={() => {
+                navigation.navigate('RegisterCar');
+              }}
+            />
+          </View>
+          <View style={{ width: windowWidth, paddingHorizontal: 20 }}>
+            <ProfileSitting />
+          </View>
+        </ScrollView>
       </ScrollView>
-    </ScrollView>
+    </AndroidBackHandler>
+
   );
 };
 export default ProfileView;

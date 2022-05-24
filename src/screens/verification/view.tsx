@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, ScrollView, TextInput, View } from 'react-native';
+import React, { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, TextInput, View } from 'react-native';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import createStyles from './styles';
 import CustomInput from '../../components/customInput';
@@ -8,6 +8,10 @@ import CustomText from '../../components/customText';
 import { RootStateOrAny, useDispatch, useSelector } from 'react-redux';
 import { FETCH, SET_OTP_ERROR } from '../../redux/actionTypes';
 import payload from '../../api/payload';
+import { AxiosContext } from '../../context/AxiosContext';
+import { Colors } from '../../constants/colors';
+import { useSetRecoilState } from 'recoil';
+import phoneTokenAtom from '../../recoil/phoneToken';
 
 interface VerificationViewProps {
   navigation: NavigationProp<ParamListBase>;
@@ -35,10 +39,32 @@ const VerificationView: FC<VerificationViewProps> = ({ navigation }) => {
 
   const [otpError, setOtpError] = useState('');
 
+  const { publicAxios } = useContext(AxiosContext);
+  const [verifying, setVerifying] = useState(false);
+  const setPhoneToken = useSetRecoilState(phoneTokenAtom);
+
+  const verifyOTPRequest = async (data) => {
+    setVerifying(true);
+    await publicAxios.post("/user/auth/verifyotp", data)
+      .then((response) => {
+        setPhoneToken(response.data.phoneToken);
+        navigation.navigate("Personal");
+
+      })
+      .catch((error) => {
+        if (error.response.status === 400) {
+          Alert.alert("OTP invalid", "You have entered invalid OTP.")
+        } else {
+          Alert.alert("Error occured", "Something wrong happened verifying the OTP.")
+        }
+      });
+    setVerifying(false);
+  };
+
   useEffect(() => {
     if (messageError != '') {
       Alert.alert("", messageError);
-      dispatch({ type: SET_OTP_ERROR, data: '' });
+
     }
   }, [messageError]);
 
@@ -57,7 +83,9 @@ const VerificationView: FC<VerificationViewProps> = ({ navigation }) => {
         color="placeholder"
       />
 
-      <View style={styles.verifyInputView}>
+      {verifying ? <View style={{ flex: 1, marginTop: 50 }}>
+        <ActivityIndicator size="large" color={Colors.BUTTON} />
+      </View> : <View style={styles.verifyInputView}>
         <CustomInput
           inputRef={input1}
           value={num1}
@@ -146,24 +174,13 @@ const VerificationView: FC<VerificationViewProps> = ({ navigation }) => {
                   otpCode: token,
                   id: id.toString(),
                 };
-                dispatch({
-                  type: FETCH,
-                  payload: payload({
-                    actionType: 'FETCH',
-                    body: data,
-                    nextAction: SET_OTP_ERROR,
-                    serviceUrl: 'VERIFY_OTP',
-                    requestMethod: 'POST',
-                    navigateTo: 'Personal',
-                    navigationType: 'reset',
-                    error: true,
-                  }),
-                });
+                verifyOTPRequest(data)
               }
             }
           }}
         />
-      </View>
+
+      </View>}
     </ScrollView>
   );
 };
