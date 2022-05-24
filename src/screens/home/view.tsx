@@ -10,7 +10,6 @@ import CarCard from '../../components/carCard';
 import Animated from 'react-native-reanimated';
 import { RootStateOrAny, useDispatch, useSelector } from 'react-redux';
 import { Colors } from '../../constants/colors';
-import Toast from 'react-native-simple-toast';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import authAtom from '../../recoil/auth';
 import carsAtom from '../../recoil/cars';
@@ -169,7 +168,7 @@ const HomeView: FC<HomeViewProps> = ({ navigation }) => {
           textSize={16}
           onPress={() => {
             if (cars.length == 0)
-              Toast.show('There are no cars, add a new car to book', Toast.LONG);
+              Alert.alert("Notice", 'There are no cars, add a new car to book');
 
             else handleCanBook();
           }}

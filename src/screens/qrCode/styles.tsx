@@ -1,6 +1,6 @@
-import {StyleSheet} from 'react-native';
-import {Colors} from '../../constants/colors';
-import {scaleHeightSize} from '../../styles/mixins';
+import { StyleSheet } from 'react-native';
+import { Colors } from '../../constants/colors';
+import { scaleHeightSize } from '../../styles/mixins';
 
 const createStyles = () =>
   StyleSheet.create({
@@ -74,12 +74,22 @@ const createStyles = () =>
       borderTopRightRadius: 20,
       borderTopLeftRadius: 20,
       paddingVertical: scaleHeightSize(20),
-      alignItems: 'center',
     },
     image: {
       width: 210,
       height: 210,
     },
+    requestedDateContainer: {
+      paddingHorizontal: 30
+    },
+    requestedDateContainerTitle: {
+      fontFamily: "Poppins-Bold",
+      fontSize: 20
+    },
+    requestedDateContainerBody: {
+      fontFamily: "Poppins-Medium",
+      fontSize: 15
+    }
   });
 
 export default createStyles;

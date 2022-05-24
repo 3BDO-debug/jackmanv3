@@ -27,7 +27,6 @@ import FavCar from '../../components/favCar';
 import Model from '../../components/modal';
 import { FETCH, SET_CARS, SET_MANUFACTURER } from '../../redux/actionTypes';
 import payload from '../../api/payload';
-import Toast from 'react-native-simple-toast';
 import { AxiosContext } from '../../context/AxiosContext';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import carsAtom from '../../recoil/cars';
@@ -279,7 +278,7 @@ const RegisterView: FC<RegisterViewProps> = ({ navigation }) => {
                 setIsType(!isType);
                 if (isType) typeRotate.value = withTiming(0);
                 else typeRotate.value = withTiming(180);
-              } else Toast.show('Please select car first', Toast.LONG);
+              } else Alert.alert("Notice", "Please select car first")
             }}>
             <CustomText
               text={selectedtype}

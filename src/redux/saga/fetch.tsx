@@ -1,5 +1,5 @@
-import {put, call, select} from 'redux-saga/effects';
-import {API} from '../../api';
+import { put, call, select } from 'redux-saga/effects';
+import { API } from '../../api';
 import {
   DESABLE_LOADER,
   ENABLE_LOADER,
@@ -8,15 +8,15 @@ import {
   FETCH,
 } from '../actionTypes';
 import * as NavigationService from '../../navigation/NavigationService';
-import Toast from 'react-native-simple-toast';
 import NetInfo from '@react-native-community/netinfo';
+import { Alert } from 'react-native';
 
 export default function* Fetch(action: any): any {
   NetInfo.fetch().then(state => {
     console.log('Connection type', state.type);
     console.log('Is connected?', state.isConnected);
     if (!state.isConnected) {
-      Toast.show('A data connection is not currently allowed', Toast.LONG);
+      Alert.alert("Connection error", "A data connection is not currently allowed")
     }
   });
   let currentState = yield select();
@@ -33,28 +33,28 @@ export default function* Fetch(action: any): any {
     API.setHeader('Authorization', 'Bearer ' + token);
   }
   if (!action.payload.load) {
-    yield put({type: ENABLE_LOADER, data: action.type});
+    yield put({ type: ENABLE_LOADER, data: action.type });
   }
 
   if (!action.payload.load) {
-    yield put({type: ENABLE_LOAD_DATA, data: action.payload.nextAction});
+    yield put({ type: ENABLE_LOAD_DATA, data: action.payload.nextAction });
   }
 
   let callMethod =
     action.payload.requestMethod == 'POST'
       ? API.post
       : action.payload.requestMethod == 'GET'
-      ? API.get
-      : action.payload.requestMethod == 'PUT'
-      ? API.put
-      : action.payload.requestMethod == 'PATCH'
-      ? API.patch
-      : API.delete;
+        ? API.get
+        : action.payload.requestMethod == 'PUT'
+          ? API.put
+          : action.payload.requestMethod == 'PATCH'
+            ? API.patch
+            : API.delete;
 
   const response = yield call(
     callMethod,
     action.payload.serviceUrl +
-      (action.payload.urlParams ? action.payload.urlParams : ''),
+    (action.payload.urlParams ? action.payload.urlParams : ''),
     action.payload.body ? action.payload.body : {},
   );
 
@@ -63,15 +63,15 @@ export default function* Fetch(action: any): any {
   }
 
   if (!action.payload.load) {
-    yield put({type: DESABLE_LOADER});
+    yield put({ type: DESABLE_LOADER });
   }
 
   if (!action.payload.load) {
-    yield put({type: DESABLE_LOAD_DATA});
+    yield put({ type: DESABLE_LOAD_DATA });
   }
 
   if (action.payload.clear) {
-    yield put({type: action.payload.nextAction, data: null});
+    yield put({ type: action.payload.nextAction, data: null });
   }
 
   API.deleteHeader('lang');
@@ -83,7 +83,7 @@ export default function* Fetch(action: any): any {
   try {
     if (response.status == 200 || response.status == 201) {
       if (action.payload.successToast)
-        Toast.show(action.payload.successToast, Toast.LONG);
+        Alert.alert("", action.payload.successToast);
 
       if (response.data) {
         if (action.payload.nextAction) {
@@ -115,9 +115,9 @@ export default function* Fetch(action: any): any {
                   type: action.payload.nextAction,
                   data: response.data.phoneToken,
                 });
-              else yield put({type: action.payload.nextAction});
+              else yield put({ type: action.payload.nextAction });
             }
-          } catch {}
+          } catch { }
         }
       }
 
@@ -135,7 +135,7 @@ export default function* Fetch(action: any): any {
         response.status == 400
       ) {
         if (action.payload.showToast) {
-          Toast.show(response.data.message, Toast.LONG);
+          Alert.alert("", response.data.message);
         }
         if (action.payload.error && action.payload.nextAction != FETCH) {
           yield put({

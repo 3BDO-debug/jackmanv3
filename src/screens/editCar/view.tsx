@@ -22,7 +22,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { ArrowIcon } from '../../constants/svg';
 import FavCar from '../../components/favCar';
-import Toast from 'react-native-simple-toast';
 import Model from '../../components/modal';
 import { AxiosContext } from '../../context/AxiosContext';
 
@@ -315,7 +314,7 @@ const EditCarView: FC<EditCarViewProps> = ({ route, navigation }) => {
                   setIsType(!isType);
                   if (isType) typeRotate.value = withTiming(0);
                   else typeRotate.value = withTiming(180);
-                } else Toast.show('Please select car first', Toast.LONG);
+                } else Alert.alert("Please select car first");
               }}>
               <CustomText
                 text={type || car?.carType}

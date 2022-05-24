@@ -10,6 +10,9 @@ import { scaleHeightSize } from '../../styles/mixins';
 import LogoImage from '../../components/logo';
 import { AxiosContext } from "../../context/AxiosContext";
 import { Colors } from '../../constants/colors';
+import { useSetRecoilState } from 'recoil';
+import triggeredBooking from '../../recoil/triggeredBooking';
+import moment from 'moment';
 
 
 // -------------------------------------------------------------------------------------------------------------
@@ -36,6 +39,7 @@ const LatestQrView: FC<LatestQrViewProps> = ({ navigation }) => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [rejectedRequests, setRejectedRequests] = useState([]);
   const [acceptedRequests, setAcceptedRequests] = useState([]);
+  const setTriggeredBooking = useSetRecoilState(triggeredBooking);
 
 
   const fetchBookings = useCallback(async () => {
@@ -68,11 +72,11 @@ const LatestQrView: FC<LatestQrViewProps> = ({ navigation }) => {
 
       myBookings.forEach((myBooking) => {
         if (myBooking.status === "pending") {
-          pendingRequestsData.push({ name: myBooking.car.manufacturer.name, type: '25th of November', time: '09:30 AM' });
+          pendingRequestsData.push({ name: myBooking.car.manufacturer.name, requestedDates: [myBooking.requestedDate1, myBooking.requestedDate2, myBooking.requestedDate3], time: moment(myBooking?.requestedDate1).format("hh:mm:A"), ...myBooking });
         } else if (myBooking.status === "accept") {
-          acceptedRequestsData.push({ name: myBooking.car.manufacturer.name, type: '25th of November', time: '09:30 AM' });
+          acceptedRequestsData.push({ name: myBooking.car.manufacturer.name, requestedDates: [myBooking.requestedDate1, myBooking.requestedDate2, myBooking.requestedDate3], time: moment(myBooking?.requestedDate1).format("hh:mm:A"), ...myBooking });
         } else if (myBooking.status === "reject") {
-          rejectedRequestsData.push({ name: myBooking.car.manufacturer.name, type: '25th of November', time: '09:30 AM' });
+          rejectedRequestsData.push({ name: myBooking.car.manufacturer.name, requestedDates: [myBooking.requestedDate1, myBooking.requestedDate2, myBooking.requestedDate3], time: moment(myBooking?.requestedDate1).format("hh:mm:A"), ...myBooking });
         }
 
       });
@@ -82,6 +86,8 @@ const LatestQrView: FC<LatestQrViewProps> = ({ navigation }) => {
       setRejectedRequests(rejectedRequestsData);
     }
   }, [myBookings])
+
+
 
 
   return (
@@ -107,7 +113,9 @@ const LatestQrView: FC<LatestQrViewProps> = ({ navigation }) => {
                   item={item}
                   onShowPress={() => {
                     /* navigation.navigate('QrCode'); */
-                    Alert.alert("Relase update", "Request screen coming soon")
+                    setTriggeredBooking(item);
+                    navigation.navigate('QrCode');
+
                   }}
                 />
               );
@@ -128,8 +136,9 @@ const LatestQrView: FC<LatestQrViewProps> = ({ navigation }) => {
                 <LatestQrCard
                   item={item}
                   onShowPress={() => {
-                    /* navigation.navigate('QrCode'); */
-                    Alert.alert("Relase update", "Request screen coming soon")
+                    setTriggeredBooking(item);
+                    navigation.navigate('QrCode');
+
 
                   }}
                 />
@@ -151,8 +160,9 @@ const LatestQrView: FC<LatestQrViewProps> = ({ navigation }) => {
                 <LatestQrCard
                   item={item}
                   onShowPress={() => {
-                    /* navigation.navigate('QrCode'); */
-                    Alert.alert("Relase update", "Request screen coming soon")
+                    setTriggeredBooking(item);
+                    navigation.navigate('QrCode');
+
 
                   }}
                 />

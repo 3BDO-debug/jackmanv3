@@ -1,9 +1,10 @@
-import React, {FC} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {Colors} from '../constants/colors';
-import {scaleHeightSize} from '../styles/mixins';
+import React, { FC } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Colors } from '../constants/colors';
+import { scaleHeightSize } from '../styles/mixins';
 import CustomText from './customText';
 import TextBtn from './textBtn';
+import moment from "moment";
 
 interface LatestQrCardProps {
   containerStyle?: object;
@@ -16,6 +17,8 @@ const LatestQrCard: FC<LatestQrCardProps> = ({
   item,
   onShowPress,
 }) => {
+
+
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={styles.headerContainer}>
@@ -34,7 +37,7 @@ const LatestQrCard: FC<LatestQrCardProps> = ({
       </View>
 
       <View style={styles.bodyContainer}>
-        <CustomText text={item.type} color="text1" size={16} />
+        <CustomText text={new Date(item.requestedDates[0]).toDateString()} color="text1" size={16} />
 
         <TextBtn
           text="Show"

@@ -1,20 +1,19 @@
-import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
-import {ScrollView, TextInput, View} from 'react-native';
-import {NavigationProp, ParamListBase} from '@react-navigation/native';
+import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, ScrollView, TextInput, View } from 'react-native';
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import createStyles from './styles';
 import CustomInput from '../../components/customInput';
-import {Logo} from '../../constants/svg';
+import { Logo } from '../../constants/svg';
 import CustomText from '../../components/customText';
-import {RootStateOrAny, useDispatch, useSelector} from 'react-redux';
-import {FETCH, SET_OTP_ERROR} from '../../redux/actionTypes';
+import { RootStateOrAny, useDispatch, useSelector } from 'react-redux';
+import { FETCH, SET_OTP_ERROR } from '../../redux/actionTypes';
 import payload from '../../api/payload';
-import Toast from 'react-native-simple-toast';
 
 interface VerificationViewProps {
   navigation: NavigationProp<ParamListBase>;
 }
 
-const VerificationView: FC<VerificationViewProps> = ({navigation}) => {
+const VerificationView: FC<VerificationViewProps> = ({ navigation }) => {
   const state = useSelector((state: RootStateOrAny) => state.MainState);
   const messageError = state.messageError;
   const id = state.phone.id;
@@ -38,8 +37,8 @@ const VerificationView: FC<VerificationViewProps> = ({navigation}) => {
 
   useEffect(() => {
     if (messageError != '') {
-      Toast.show(messageError, Toast.LONG);
-      dispatch({type: SET_OTP_ERROR, data: ''});
+      Alert.alert("", messageError);
+      dispatch({ type: SET_OTP_ERROR, data: '' });
     }
   }, [messageError]);
 
@@ -84,7 +83,7 @@ const VerificationView: FC<VerificationViewProps> = ({navigation}) => {
           inputStyle={styles.input}
           fontFamily="bold"
           maxLength={1}
-          onKeyPress={({nativeEvent}) => {
+          onKeyPress={({ nativeEvent }) => {
             console.log('+=====', num2);
             if (nativeEvent.key === 'Backspace' && num2 == '') {
               setNum1('');
@@ -107,7 +106,7 @@ const VerificationView: FC<VerificationViewProps> = ({navigation}) => {
           inputStyle={styles.input}
           fontFamily="bold"
           maxLength={1}
-          onKeyPress={({nativeEvent}) => {
+          onKeyPress={({ nativeEvent }) => {
             if (nativeEvent.key === 'Backspace' && num3 == '') {
               setNum2('');
               input2.current?.focus();
@@ -130,7 +129,7 @@ const VerificationView: FC<VerificationViewProps> = ({navigation}) => {
           fontFamily="bold"
           maxLength={1}
           returnKeyType="go"
-          onKeyPress={({nativeEvent}) => {
+          onKeyPress={({ nativeEvent }) => {
             if (nativeEvent.key === 'Backspace' && num4 == '') {
               setNum3('');
               input3.current?.focus();

@@ -10,7 +10,7 @@ import Svg, {
   Circle,
   ClipPath,
 } from 'react-native-svg';
-import {Colors} from './colors';
+import { Colors } from './colors';
 
 const Logo = (props: SvgProps) => (
   <Svg xmlns="http://www.w3.org/2000/svg" width={177} height={177} {...props}>
@@ -67,7 +67,7 @@ const Logo = (props: SvgProps) => (
   </Svg>
 );
 
-const User = ({obacity}) => (
+const User = ({ obacity }) => (
   <Svg xmlns="http://www.w3.org/2000/svg" width={20.222} height={22.5}>
     <G
       opacity={obacity}
@@ -330,7 +330,7 @@ const ArrowIcon = (props: SvgProps) => {
       width={20}
       height={8.45}
       {...props}
-      style={{transform: [{rotate: '180deg'}]}}>
+      style={{ transform: [{ rotate: '180deg' }] }}>
       <Path
         data-name="Icon ionic-ios-arrow-down"
         d="M7.387 2.547 1.799 8.139a1.052 1.052 0 0 1-1.492 0 1.065 1.065 0 0 1 0-1.5L6.638.303A1.054 1.054 0 0 1 8.094.272l6.372 6.367a1.058 1.058 0 0 1-1.492 1.5Z"
@@ -383,9 +383,9 @@ const QrIcon = (props: SvgProps) => {
   );
 };
 
-const DateIcon = ({color = '#fff'}: {color?: string}) => {
+const DateIcon = ({ color = '#fff', height, width }: { color?: string, height: any, width: any }) => {
   return (
-    <Svg xmlns="http://www.w3.org/2000/svg" width={13} height={14.166}>
+    <Svg xmlns="http://www.w3.org/2000/svg" width={width} height={height}>
       <Path
         fill={color}
         d="M4.25 6.375H2.833v1.417H4.25Zm2.833 0H5.666v1.417h1.417Zm2.833 0H8.5v1.417h1.417Zm1.417-4.958h-.708V0H9.208v1.417H3.541V0H2.125v1.417h-.708a1.41 1.41 0 0 0-1.41 1.417L0 12.749a1.416 1.416 0 0 0 1.417 1.417h9.916a1.421 1.421 0 0 0 1.417-1.417V2.833a1.421 1.421 0 0 0-1.417-1.416Zm0 11.333H1.417V4.958h9.916Z"
@@ -460,7 +460,7 @@ const SmallLocationIcon = (props: SvgProps) => {
   );
 };
 
-const TimeIcon = ({color = '#fff'}: {color?: string}) => {
+const TimeIcon = ({ color = '#fff', width, height }: { color?: string, width: any, height: any }) => {
   return (
     <Svg xmlns="http://www.w3.org/2000/svg" width={14} height={14}>
       <Path
@@ -681,7 +681,7 @@ const CARICON = (props: SvgProps) => (
   </Svg>
 );
 
-const Profile = ({obacity}) => (
+const Profile = ({ obacity }) => (
   <Svg
     viewBox="0 0 23 18"
     xmlns="http://www.w3.org/2000/svg"

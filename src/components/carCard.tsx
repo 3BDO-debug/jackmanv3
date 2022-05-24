@@ -20,7 +20,6 @@ import {
   SET_SELECTED_CAR,
 } from '../redux/actionTypes';
 import payload from '../api/payload';
-import Toast from 'react-native-simple-toast';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import carCardAtom from '../recoil/carCard';
 import { AxiosContext } from '../context/AxiosContext';
@@ -64,10 +63,7 @@ const CarCard: FC<CarCardProps> = ({
       backgroundColor: Colors.BACKGROUND,
       onPress: () => {
         if (item.reserved)
-          Toast.show(
-            'cannot delete this car: this car has a reservation',
-            Toast.LONG,
-          );
+          Alert.alert("Notice", "cannot delete this car: this car has a reservation")
         else
           Alert.alert('', 'Are you sure to delete it?', [
             {

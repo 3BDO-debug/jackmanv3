@@ -8,11 +8,11 @@ import { RootStateOrAny, useDispatch, useSelector } from 'react-redux';
 import { FETCH, SET_USER_DATA } from '../../redux/actionTypes';
 import payload from '../../api/payload';
 import * as NavigationService from '../../navigation/NavigationService';
-import Toast from 'react-native-simple-toast';
 import { scaleWidthSize } from '../../styles/mixins';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import authAtom from '../../recoil/auth';
 import { AxiosContext } from '../../context/AxiosContext';
+import updateUserInfoAtom from '../../recoil/updateUserInfo';
 
 interface ProfileSittingViewProps { }
 
@@ -73,6 +73,7 @@ const Sitting: FC<SittingProps> = ({
 const ProfileSittingView: FC<ProfileSittingViewProps> = () => {
   const state = useSelector((state: RootStateOrAny) => state.MainState);
   const userData = useRecoilValue(authAtom)?.userData;
+  const [updateUserInfo, setUpdateUserInfo] = useRecoilState(updateUserInfoAtom);
 
   const styles = useMemo(() => createStyles(), []);
 
@@ -101,10 +102,15 @@ const ProfileSittingView: FC<ProfileSittingViewProps> = () => {
       favManufacturer: "6"
     };
 
-    await authAxios.patch("/user/auth/update", data).then(() => Alert.alert("Success", "Updated user info successfully.")).catch((error) => {
-      console.log("error updating user data", error.response);
-      Alert.alert("OPPS!!", "Something wrong happened updating user info.");
-    })
+    await authAxios.patch("/user/auth/update", data)
+      .then(() => {
+        Alert.alert("Success", "Updated user info successfully.");
+        setUpdateUserInfo(updateUserInfo + 1)
+      })
+      .catch((error) => {
+        console.log("error updating user data", error.response);
+        Alert.alert("OPPS!!", "Something wrong happened updating user info.");
+      })
 
   }
 
@@ -129,19 +135,19 @@ const ProfileSittingView: FC<ProfileSittingViewProps> = () => {
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps={'handled'}>
       <Sitting
-        label={'Username'}
+        label={'Fullname'}
         value={name}
         onChangeText={text => setName(text)}
         onEditPress={isEdit => {
           if (!isEdit && name != userData.name) {
-            let checkName = /^[A-Za-z0-9][A-Za-z]+[A-Za-z0-9]$/.test(name);
+            let checkName = /[A-Za-z0-9][ ]?[A-Za-z]+[ ]?[A-Za-z0-9]/.test(name);
             console.log("Da", checkName);
 
-            if (!checkName) {
-              Toast.show(
-                '*Only letters(a-z) and numbers(0-9) are allowed',
-                Toast.LONG,
-              );
+            if (!checkName && name !== "") {
+              Alert.alert("Only letters(a-z) and numbers(0-9) are allowed")
+            } else if (name === "") {
+              Alert.alert("Validation error", "Full name cannot be empty.");
+              setName(userData?.name)
             } else
               updateUserRequest();
           }

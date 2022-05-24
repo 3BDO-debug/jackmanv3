@@ -6,11 +6,13 @@ import authAtom from "../../recoil/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Colors } from "../../constants/colors";
 import { AxiosContext } from "../../context/AxiosContext";
+import updateUserInfoAtom from "../../recoil/updateUserInfo";
 
 const Splash = ({ navigation }) => {
   const authContext = useContext(AuthContext);
   const [auth, setAuth] = useRecoilState(authAtom);
   const { authAxios } = useContext(AxiosContext);
+  const updateUserInfo = useRecoilValue(updateUserInfoAtom);
 
   const loadJWT = useCallback(async () => {
     try {
@@ -40,7 +42,7 @@ const Splash = ({ navigation }) => {
     } else {
       setAuth({ authenticated: false });
     }
-  }, [authContext.authState]);
+  }, [authContext.authState, updateUserInfo]);
 
   useEffect(() => {
     loadJWT();
