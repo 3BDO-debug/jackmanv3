@@ -1,4 +1,4 @@
-import React, {FC, useState} from 'react';
+import React, { FC, useState } from 'react';
 import {
   KeyboardTypeOptions,
   ReturnKeyTypeOptions,
@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Colors} from '../constants/colors';
-import {ShowPass, NotShowPass} from '../constants/svg';
-import {scaleHeightSize} from '../styles/mixins';
+import { Colors } from '../constants/colors';
+import { ShowPass, NotShowPass } from '../constants/svg';
+import { scaleHeightSize } from '../styles/mixins';
 import CustomText from './customText';
 
 interface InputProps {
@@ -33,12 +33,15 @@ interface InputProps {
   returnKeyType?: ReturnKeyTypeOptions;
   onKeyPress?: any;
   onFocus?: () => void;
+  rightIcon: boolean;
+  rightIconComponent: any
+
 }
 
 const CustomInput: FC<InputProps> = ({
   placeholder,
   containerStyle,
-  onChangeText = () => {},
+  onChangeText = () => { },
   keyboardType = 'default',
   autoFocus = false,
   editable = true,
@@ -52,10 +55,12 @@ const CustomInput: FC<InputProps> = ({
   required,
   inputRef,
   maxLength,
-  onSubmitEditing = () => {},
+  onSubmitEditing = () => { },
   returnKeyType = 'default',
   onKeyPress,
   onFocus,
+  rightIcon,
+  rightIconComponent
 }) => {
   const chooseFontFamily = (font: string) => {
     switch (font) {
@@ -123,6 +128,15 @@ const CustomInput: FC<InputProps> = ({
           </TouchableOpacity>
         )}
 
+        {rightIcon && <TouchableOpacity
+          activeOpacity={0.75}
+          style={styles.showPassTouch}
+          onPress={() => {
+            rightIconComponent?.callback
+          }}>
+          {rightIconComponent?.component}
+        </TouchableOpacity>}
+
         {required && (
           <View style={styles.star}>
             <CustomText
@@ -133,7 +147,7 @@ const CustomInput: FC<InputProps> = ({
           </View>
         )}
       </View>
-      <View style={[styles.textView, {marginBottom: caption ? 0 : 0}]}>
+      <View style={[styles.textView, { marginBottom: caption ? 0 : 0 }]}>
         {caption?.length != 0 && caption && (
           <CustomText
             text={caption}

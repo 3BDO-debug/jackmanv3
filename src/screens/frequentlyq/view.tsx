@@ -43,18 +43,60 @@ const FrequentlyqView: FC<FrequentlyqViewProps> = ({ navigation }) => {
             <FlatList
                 showsVerticalScrollIndicator={false}
                 data={[{
-                    question: 'General', answer: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed \n" +
-                        " diam nonummy nibh euismod tincidunt ut laoreet dolore\n" +
-                        " magna aliquam erat volutpat. Ut wisi enim ad"
-                }, {
-                    question: 'How does it work', answer: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed \n" +
-                        " diam nonummy nibh euismod tincidunt ut laoreet dolore\n" +
-                        " magna aliquam erat volutpat. Ut wisi enim ad"
-                }, {
-                    question: 'How to start', answer: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed \n" +
-                        " diam nonummy nibh euismod tincidunt ut laoreet dolore\n" +
-                        " magna aliquam erat volutpat. Ut wisi enim ad"
-                },]}
+                    question: 'How does my Jackman app work?',
+                    answer: `Users request/book service from the client app, and a mobile mechanic or auto technician, 
+nearest to the destination, will arrive onsite or the customer can book the service required in the 
+suppliers store.`,
+                    link: false
+                },
+                {
+                    question: 'How do I pay for service?',
+                    answer: `Payments are made upon completion of the service. Some suppliers offer cash and card payments 
+while others offer only cash payments. Currently, payments cannot be done through the app`,
+                    link: false
+
+                },
+                {
+                    question: 'What service are offered by Jackman?',
+                    answer: "• Car maintenance\n" + "• Tires and batteries replacement \n" + "• Car care \n" + "• Car protection \n" + "• Oil change \n" + "N.B: not all services are offered now",
+                    link: false
+
+                },
+                {
+                    question: "How do I sign up to be a service provider with Jackman?",
+                    answer: `You may download the app and enroll through it or by contacting the Jackman’s customer 
+service`,
+                    link: false
+
+                },
+                {
+                    question: "I’m having technical difficulties and/or need further assistance using the app?",
+                    answer: `You can contact the customer service through WhatsApp, phone call or through chat bot built-in 
+within the app and they will direct you to the technical support team`,
+                    link: false
+
+                },
+                {
+                    question: "What is your website?",
+                    answer: `http://www.jackman-eg.com/`,
+                    link: true
+                },
+                {
+                    question: `Which repair type should I select?`,
+                    answer: `In cases where your vehicle's issues or diagnosis are unknown to you or are unavailable, you can 
+choose to book a diagnostic service where you can describe your issue in more detail during the 
+booking process`,
+                    link: false
+
+                },
+                {
+                    question: `Do you do home pick-up?`,
+                    answer: `Jackman does not offer home pick up. However, in some cases we can arrange home pick-up and 
+Jackman will not be held liable for anything that occurs to the vehicle`,
+                    link: false
+
+                }
+                ]}
                 renderItem={({ item }) => {
                     return (<FreqQuestion
                         item={item}

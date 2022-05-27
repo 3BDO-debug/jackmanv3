@@ -28,7 +28,8 @@
             "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
           }
         ]
-      }
+      },
+      "bundleIdentifier": "com.bot.jackman"
     },
     "android": {
       "adaptiveIcon": {
@@ -48,15 +49,12 @@
           "userTrackingPermission": false
         }
       ],
-      "@react-native-google-signin/google-signin",
       [
         "expo-notifications",
         {
           "color": "#ffffff"
-         
         }
       ]
-
     ]
   }
 }

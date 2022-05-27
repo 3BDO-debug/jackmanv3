@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react'
-import { StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../constants/colors';
 import CustomButton from './customButton';
 import CustomText from './customText';
@@ -26,6 +26,11 @@ const FreqQuestion: FC<FreqQuestionProps> = ({
         };
     });
 
+    const handleLinkPress = async (link) => {
+        await Linking.canOpenURL(link);
+        Linking.openURL(link);
+    }
+
 
     return (
         <View style={styles.view}>
@@ -51,7 +56,19 @@ const FreqQuestion: FC<FreqQuestionProps> = ({
             />
 
             {ispress &&
-                <CustomText
+                item.link ?
+                <TouchableOpacity onPress={() => {
+
+                    handleLinkPress(item?.answer)
+                }}>
+                    <CustomText
+                        text={item.answer}
+                        size={10}
+                        fontFamily="regular"
+                        style={[styles.text3, { color: Colors.BUTTON }]}
+                    />
+                </TouchableOpacity>
+                : <CustomText
                     text={item.answer}
                     color="blaceholder"
                     size={10}
@@ -60,7 +77,8 @@ const FreqQuestion: FC<FreqQuestionProps> = ({
 
 
 
-                />}
+                />
+            }
         </View>
 
     )

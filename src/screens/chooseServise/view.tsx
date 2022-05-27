@@ -23,48 +23,7 @@ import ChooseDealerCard from '../../components/chooseDealerCard';
 import DealerContainer from '../../components/DealerContainer';
 import { AxiosContext } from '../../context/AxiosContext';
 
-const ENTRIES1 = [
-  {
-    title: 'Beautiful and dramatic Antelope Canyon',
-    subtitle: 'Lorem ipsum dolor sit amet et nuncat mergitur',
-    illustration: 'https://i.imgur.com/UYiroysl.jpg',
-  },
-  {
-    title: 'Earlier this morning, NYC',
-    subtitle: 'Lorem ipsum dolor sit amet',
-    illustration: 'https://i.imgur.com/UPrs1EWl.jpg',
-  },
-  {
-    title: 'White Pocket Sunset',
-    subtitle: 'Lorem ipsum dolor sit amet et nuncat ',
-    illustration: 'https://i.imgur.com/MABUbpDl.jpg',
-  },
-  {
-    title: 'Acrocorinth, Greece',
-    subtitle: 'Lorem ipsum dolor sit amet et nuncat mergitur',
-    illustration: 'https://i.imgur.com/KZsmUi2l.jpg',
-  },
-  {
-    title: 'The lone tree, majestic landscape of New Zealand',
-    subtitle: 'Lorem ipsum dolor sit amet',
-    illustration: 'https://i.imgur.com/2nCt3Sbl.jpg',
-  },
-  {
-    title: 'The lone tree, majestic landscape of New Zealand',
-    subtitle: 'Lorem ipsum dolor sit amet',
-    illustration: 'https://i.imgur.com/2nCt3Sbl.jpg',
-  },
-  {
-    title: 'The lone tree, majestic landscape of New Zealand',
-    subtitle: 'Lorem ipsum dolor sit amet',
-    illustration: 'https://i.imgur.com/2nCt3Sbl.jpg',
-  },
-  {
-    title: 'The lone tree, majestic landscape of New Zealand',
-    subtitle: 'Lorem ipsum dolor sit amet',
-    illustration: 'https://i.imgur.com/2nCt3Sbl.jpg',
-  },
-];
+
 const { width: screenWidth } = Dimensions.get('window');
 
 interface ChooseServiseViewProps {
@@ -81,10 +40,18 @@ const ChooseServiseView: FC<ChooseServiseViewProps> = ({ navigation }) => {
 
 
 
+
   const dealersFetcher = useCallback(async () => {
     setIsFetching(true);
     await authAxios.get(`/manufacturer/getDealers?page=1&limit=5&manId=${booking?.carData?.id}`)
-      .then((response) => setDealers(response.data.result.data))
+      .then((response) => {
+        if (response.data.result.data?.length > 0) {
+          setDealers(response.data.result.data)
+
+        } else {
+          Alert.alert("No dealers !", "There's no dealers currently available for your car", [{ text: "Choose another car", onPress: () => navigation.goBack() }])
+        }
+      })
       .catch((error) => {
         Alert.alert("Error", "Something wrong happened while fetching dealers. we are working on it.")
         console.log("Error fetching dealers", error.response);
@@ -110,6 +77,27 @@ const ChooseServiseView: FC<ChooseServiseViewProps> = ({ navigation }) => {
 
 
 
+  const renderDivider = (index) => {
+    let renderDivider;
+    if (dealers.length % 3 === 0) {
+      renderDivider = true;
+    } else {
+      if (index + 2 === dealers.length) {
+        renderDivider = false;
+      } else if (index + 1 === dealers.length) {
+        renderDivider = false;
+      } else if (index === dealers.length) {
+        renderDivider = false;
+      } else {
+        renderDivider = true;
+      }
+    }
+
+    return renderDivider;
+  };
+
+
+
 
   return (
     <View style={styles.container}>
@@ -128,7 +116,7 @@ const ChooseServiseView: FC<ChooseServiseViewProps> = ({ navigation }) => {
                 selectedDealer={selectedDealer}
                 pressable
               />
-              {dealers.length > 3 && <View style={{ backgroundColor: Colors.GRAY, height: 1, marginVertical: 15 }}></View>}
+              {dealers.length > 3 && renderDivider() && <View style={{ backgroundColor: Colors.GRAY, height: 1, marginVertical: 15 }}></View>}
             </View>
           )}
 

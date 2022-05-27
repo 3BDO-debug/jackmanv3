@@ -3,8 +3,9 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  TouchableHighlight,
   TouchableWithoutFeedback,
+  Linking,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { ScaledSheet } from "react-native-size-matters";
@@ -16,12 +17,24 @@ const DealerContainer = ({
   onPressCallback,
   selectedDealer,
 }) => {
-  const { title, image } = dealerData;
+  const { title, image, location } = dealerData;
   const [selected, setSelected] = useState(false);
 
   const onPressHandler = () => {
     if (pressable) {
       onPressCallback();
+    }
+  };
+
+  const handleLocationPress = async () => {
+    if (location) {
+      await Linking.canOpenURL(location);
+      Linking.openURL(location);
+    } else {
+      Alert.alert(
+        "Location not available",
+        `We are sorry locaiton for ${title} not available yet`
+      );
     }
   };
 
@@ -34,10 +47,15 @@ const DealerContainer = ({
   }, [dealerData, selectedDealer]);
 
   return (
-    <View style={styles.wrapper}>
+    <TouchableOpacity
+      onPress={!pressable && handleLocationPress}
+      style={styles.wrapper}
+    >
       {/* Dealer name */}
       <View style={styles.dealerNameWrapper}>
-        <Text style={styles.dealerNameText}>{title}</Text>
+        <Text numberOfLines={2} style={styles.dealerNameText}>
+          {title}
+        </Text>
       </View>
       {/* Dealer image */}
       <TouchableWithoutFeedback onPress={onPressHandler}>
@@ -55,9 +73,11 @@ const DealerContainer = ({
       </TouchableWithoutFeedback>
       {/* Dealer location name */}
       <View style={styles.dealerLocationNameWrapper}>
-        <Text style={styles.dealerLocationNameText}>{title}</Text>
+        <Text numberOfLines={2} style={styles.dealerLocationNameText}>
+          {title}
+        </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
