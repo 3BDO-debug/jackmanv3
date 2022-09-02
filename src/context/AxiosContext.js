@@ -1,72 +1,63 @@
-import React, {createContext, useContext} from 'react';
-import axios from 'axios';
-import {AuthContext} from './AuthContext';
-import createAuthRefreshInterceptor from 'axios-auth-refresh';
-import * as Keychain from 'react-native-keychain';
+import React, { createContext, useContext } from "react";
+import axios from "axios";
+import { AuthContext } from "./AuthContext";
+import createAuthRefreshInterceptor from "axios-auth-refresh";
+import { Alert } from "react-native";
 
 const AxiosContext = createContext();
-const {Provider} = AxiosContext;
+const { Provider } = AxiosContext;
 
-const AxiosProvider = ({children}) => {
+const AxiosProvider = ({ children }) => {
   const authContext = useContext(AuthContext);
 
   const authAxios = axios.create({
-    baseURL: 'https://jackman.herokuapp.com/api/v1',
+    baseURL: "https://prod.jackman-eg.com/api/v1",
   });
 
   const publicAxios = axios.create({
-    baseURL: 'https://jackman.herokuapp.com/api/v1',
+    baseURL: "https://prod.jackman-eg.com/api/v1",
   });
 
   authAxios.interceptors.request.use(
-    config => {
+    (config) => {
       if (!config.headers.Authorization) {
         config.headers.Authorization = `Bearer ${authContext.getAccessToken()}`;
       }
-
       return config;
     },
-    error => {
+    (error) => {
       return Promise.reject(error);
-    },
+    }
   );
 
-  const refreshAuthLogic = failedRequest => {
+  const refreshAuthLogic = (failedRequest) => {
     const data = {
       refreshToken: authContext.authState.refreshToken,
     };
 
     const options = {
-      method: 'POST',
+      method: "POST",
       data,
-      url: 'https://jackman.herokuapp.com/api/v1/user/auth/refreshtoken',
+      url: "http://prod.jackman-eg.com/api/v1/user/auth/refreshtoken",
     };
 
     return axios(options)
-      .then(async tokenRefreshResponse => {
+      .then(async (tokenRefreshResponse) => {
         failedRequest.response.config.headers.Authorization =
-          'Bearer ' + tokenRefreshResponse.data.accessToken;
+          "Bearer " + tokenRefreshResponse.data.accessToken;
 
         authContext.setAuthState({
           ...authContext.authState,
           accessToken: tokenRefreshResponse.data.accessToken,
         });
 
-        await Keychain.setGenericPassword(
-          'token',
-          JSON.stringify({
-            accessToken: tokenRefreshResponse.data.accessToken,
-            refreshToken: authContext.authState.refreshToken,
-          }),
-        );
-
         return Promise.resolve();
       })
-      .catch(e => {
-        authContext.setAuthState({
-          accessToken: null,
-          refreshToken: null,
-        });
+      .catch((e) => {
+        console.log("failed refreshing token", e);
+
+        authContext.logout();
+        Alert.alert("Session expired", "Please login to continue.");
       });
   };
 
@@ -77,10 +68,11 @@ const AxiosProvider = ({children}) => {
       value={{
         authAxios,
         publicAxios,
-      }}>
+      }}
+    >
       {children}
     </Provider>
   );
 };
 
-export {AxiosContext, AxiosProvider};
+export { AxiosContext, AxiosProvider };

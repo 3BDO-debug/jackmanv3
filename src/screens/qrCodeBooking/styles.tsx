@@ -1,18 +1,18 @@
-import {StyleSheet} from 'react-native';
-import {Colors} from '../../constants/colors';
-import {scaleHeightSize} from '../../styles/mixins';
+import { StyleSheet } from "react-native";
+import { Colors } from "../../constants/colors";
+import { scaleHeightSize } from "../../styles/mixins";
 
 const createStyles = () =>
   StyleSheet.create({
     container: {
       backgroundColor: Colors.BACKGROUND,
       paddingHorizontal: 20,
-      height: '100%',
+      height: "100%",
       // flex: 1,
     },
 
     textCenter: {
-      alignSelf: 'center',
+      alignSelf: "center",
     },
 
     qrContainer: {
@@ -21,7 +21,8 @@ const createStyles = () =>
       borderTopRightRadius: 20,
       borderTopLeftRadius: 20,
       paddingVertical: scaleHeightSize(20),
-      alignItems: 'center',
+      alignItems: "center",
+      marginTop: 30,
     },
     image: {
       width: 210,

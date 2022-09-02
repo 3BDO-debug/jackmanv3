@@ -1,9 +1,9 @@
-import React, {FC, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import {Colors} from '../constants/colors';
-import {scaleHeightSize} from '../styles/mixins';
-import CustomText from './customText';
-import {CheckIcon, RightIcon} from '../constants/svg';
+import React, { FC, useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Colors } from "../constants/colors";
+import { scaleHeightSize } from "../styles/mixins";
+import CustomText from "./customText";
+import { CheckIcon, RightIcon } from "../constants/svg";
 
 interface ChooseCarCardProps {
   containerStyle?: object;
@@ -20,16 +20,11 @@ const ChooseCarCard: FC<ChooseCarCardProps> = ({
   selected,
   index,
 }) => {
-
-  
-
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={styles.headerContainer}>
-
         <CustomText text={item?.manufacturer.name} color="text1" size={16} />
-        <CustomText text={item?.chassisName} color="text1" size={14} />
-
+        <CustomText text={item?.plateNo} color="text1" size={14} />
       </View>
 
       <Pressable onPress={onSelected} style={styles.checkContainer}>
@@ -52,19 +47,19 @@ const styles = StyleSheet.create({
     paddingLeft: 12,
     marginBottom: scaleHeightSize(10),
     height: scaleHeightSize(80),
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   bodyContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   headerContainer: {
     flex: 1,
   },
   timeText: {
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
   },
   nameText: {
     flex: 1,
@@ -72,7 +67,7 @@ const styles = StyleSheet.create({
   checkContainer: {
     width: 40,
     height: 40,
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     paddingRight: 12,
   },
   checkView: {
@@ -81,7 +76,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: Colors.BUTTON,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
   },
 });

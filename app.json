@@ -2,10 +2,11 @@
   "expo": {
     "name": "Jackman",
     "slug": "Jackman",
-    "version": "1.0.0",
-    "scheme": "mycoolredirect",
+    "version": "5.9",
+    "scheme": "codingspark",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -29,7 +30,11 @@
           }
         ]
       },
-      "bundleIdentifier": "com.bot.jackman"
+      "bundleIdentifier": "com.bot.jackman",
+      "buildNumber": "5.9",
+      "config": {
+        "googleMapsApiKey": "AIzaSyCVspEbhklDpXKgvG_Gt2mCn7c5oaa-Bdw"
+    }
     },
     "android": {
       "adaptiveIcon": {
@@ -37,7 +42,13 @@
         "backgroundColor": "#143131"
       },
       "package": "com.bot.jackman",
-      "googleServicesFile": "./google-services.json"
+      "versionCode": 15,
+      "googleServicesFile": "./google-services.json",
+      "config": {
+        "googleMaps": {
+            "apiKey": "AIzaSyCVspEbhklDpXKgvG_Gt2mCn7c5oaa-Bdw"
+        }
+    }
     },
     "web": {
       "favicon": "./assets/favicon.png"

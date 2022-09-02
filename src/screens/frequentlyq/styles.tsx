@@ -4,25 +4,25 @@ import { Colors } from "../../constants/colors";
 const createStyles = () =>
     StyleSheet.create({
         container: {
-            flex:1,
+            flex: 1,
             // backgroundColor: Colors.BACKGROUND,
             paddingHorizontal: 20,
             paddingBottom: 74,
-            
-        },
-       
-        text: {
-            marginTop: 150,
-            
-            
 
         },
-        text2:{
-            marginBottom:50
+
+        text: {
+            marginTop: 0,
+
+
+
         },
-        text3:{
-            marginBottom:30,
-            paddingLeft:20,
+        text2: {
+            marginBottom: 50
+        },
+        text3: {
+            marginBottom: 30,
+            paddingLeft: 20,
         },
         locationBtn: {
             backgroundColor: Colors.WHITE,
@@ -32,21 +32,21 @@ const createStyles = () =>
             height: 52,
 
         },
-        btn:{
-            marginBottom:.1,
+        btn: {
+            marginBottom: .1,
         },
-        view:{
-            backgroundColor:Colors.WHITE,
+        view: {
+            backgroundColor: Colors.WHITE,
             marginBottom: 25,
-            borderRadius:20,
-           
+            borderRadius: 20,
+
 
         },
-        icon:{
-            marginRight:10,
-           
+        icon: {
+            marginRight: 10,
+
         }
-       
+
     })
 
-    export default createStyles;
+export default createStyles;

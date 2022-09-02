@@ -1,30 +1,30 @@
-import React, {FC} from 'react';
-import {Text} from 'react-native';
-import {RFValue} from 'react-native-responsive-fontsize';
-import {Colors} from '../constants/colors';
+import React, { FC } from "react";
+import { Text } from "react-native";
+import { RFValue } from "react-native-responsive-fontsize";
+import { Colors } from "../constants/colors";
 
 interface TextProps {
   text?: string;
-  color?: 'white' | 'black' | 'placeholder' | 'text1' | 'button' | 'red' | any;
+  color?: "white" | "black" | "placeholder" | "text1" | "button" | "red" | any;
   size?: number;
-  fontFamily?: 'extraBold' | 'bold' | 'semiBold' | 'medium' | 'regular' | any;
+  fontFamily?: "extraBold" | "bold" | "semiBold" | "medium" | "regular" | any;
   style?: object;
   num?: number;
 }
 
 const chooseTextColor = (color: string) => {
   switch (color) {
-    case 'white':
+    case "white":
       return Colors.WHITE;
-    case 'black':
+    case "black":
       return Colors.BLACK;
-    case 'placeholder':
+    case "placeholder":
       return Colors.PLACEHOLDER;
-    case 'text1':
+    case "text1":
       return Colors.TEXT1;
-    case 'button':
+    case "button":
       return Colors.BUTTON;
-    case 'red':
+    case "red":
       return Colors.RED;
     default:
       break;
@@ -33,16 +33,16 @@ const chooseTextColor = (color: string) => {
 
 const chooseFontFamily = (font: string) => {
   switch (font) {
-    case 'extraBold':
-      return 'Poppins-ExtraBold';
-    case 'bold':
-      return 'Poppins-Bold';
-    case 'semiBold':
-      return 'Poppins-SemiBold';
-    case 'medium':
-      return 'Poppins-Medium';
-    case 'regular':
-      return 'Poppins-Regular';
+    case "extraBold":
+      return "Poppins-ExtraBold";
+    case "bold":
+      return "Poppins-Bold";
+    case "semiBold":
+      return "Poppins-SemiBold";
+    case "medium":
+      return "Poppins-Medium";
+    case "regular":
+      return "Poppins-Regular";
 
     default:
       break;
@@ -50,10 +50,10 @@ const chooseFontFamily = (font: string) => {
 };
 
 const CustomText: FC<TextProps> = ({
-  text = '',
-  color = 'white',
+  text = "",
+  color = "white",
   size = 14,
-  fontFamily = 'regular',
+  fontFamily = "regular",
   style,
   num,
 }) => {
@@ -66,9 +66,11 @@ const CustomText: FC<TextProps> = ({
           fontFamily: chooseFontFamily(fontFamily),
           fontSize: RFValue(size),
           paddingTop: 4,
+          textAlign: "left",
         },
         style,
-      ]}>
+      ]}
+    >
       {text}
     </Text>
   );

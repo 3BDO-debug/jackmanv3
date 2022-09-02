@@ -7,10 +7,10 @@ const createStyles = () =>
       backgroundColor: Colors.BACKGROUND,
       paddingHorizontal: 20,
       flex: 1,
-      paddingTop: 100,
+      paddingTop: 30,
     },
     contentContainer: {
-      paddingTop: 50,
+      paddingTop: 10,
     },
     logo: {
       alignSelf: 'center',

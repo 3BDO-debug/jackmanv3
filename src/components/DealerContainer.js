@@ -9,7 +9,11 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { ScaledSheet } from "react-native-size-matters";
+import { useSetRecoilState } from "recoil";
+// theme
 import { Colors } from "../constants/colors";
+// atoms
+import popUpAlertAtom from "../recoil/popUpAlert";
 
 const DealerContainer = ({
   dealerData,
@@ -19,6 +23,7 @@ const DealerContainer = ({
 }) => {
   const { title, image, location } = dealerData;
   const [selected, setSelected] = useState(false);
+  const setPopUpAlert = useSetRecoilState(popUpAlertAtom);
 
   const onPressHandler = () => {
     if (pressable) {
@@ -31,10 +36,13 @@ const DealerContainer = ({
       await Linking.canOpenURL(location);
       Linking.openURL(location);
     } else {
-      Alert.alert(
-        "Location not available",
-        `We are sorry locaiton for ${title} not available yet`
-      );
+      setPopUpAlert({
+        visible: true,
+        title: "Location not available",
+        body: `We are sorry locaiton for ${title} not available yet`,
+        popUpActionText: "okay",
+        popUpActionHandler: () => false,
+      });
     }
   };
 
@@ -48,12 +56,19 @@ const DealerContainer = ({
 
   return (
     <TouchableOpacity
-      onPress={!pressable && handleLocationPress}
-      style={styles.wrapper}
+      onPress={() => {
+        if (!pressable) {
+          handleLocationPress();
+        }
+      }}
+      style={[
+        styles.wrapper,
+        { transform: [{ scale: pressable && selected ? 1.3 : 1 }] },
+      ]}
     >
       {/* Dealer name */}
       <View style={styles.dealerNameWrapper}>
-        <Text numberOfLines={2} style={styles.dealerNameText}>
+        <Text numberOfLines={2} style={[styles.dealerNameText]}>
           {title}
         </Text>
       </View>
@@ -68,33 +83,56 @@ const DealerContainer = ({
             },
           ]}
         >
-          <Image source={image} />
+          {image ? (
+            <Image
+              source={{
+                uri: image,
+              }}
+              style={[
+                styles.dealerAvatar,
+                {
+                  width: pressable && selected ? 55 : 70,
+                  height: pressable && selected ? 55 : 70,
+                },
+              ]}
+            />
+          ) : (
+            <Text
+              style={{
+                fontFamily: "Poppins-Bold",
+                fontSize: 10,
+                color: pressable && selected ? Colors.WHITE : Colors.BUTTON,
+              }}
+            >
+              Jackman
+            </Text>
+          )}
         </View>
       </TouchableWithoutFeedback>
       {/* Dealer location name */}
-      <View style={styles.dealerLocationNameWrapper}>
+      {/* <View style={styles.dealerLocationNameWrapper}>
         <Text numberOfLines={2} style={styles.dealerLocationNameText}>
           {title}
         </Text>
-      </View>
+      </View> */}
     </TouchableOpacity>
   );
 };
 
 const styles = ScaledSheet.create({
   wrapper: {
-    paddingVertical: "30@s",
+    paddingVertical: 10,
     justifyContent: "center",
     alignItems: "center",
-    height: 220,
+    height: 190,
   },
   dealerNameWrapper: {
-    paddingBottom: "12@s",
+    paddingBottom: 10,
     width: 70,
   },
   dealerNameText: {
     fontFamily: "Poppins-Bold",
-    fontSize: "11@s",
+    fontSize: 11,
     color: Colors.WHITE,
     textAlign: "center",
   },
@@ -108,11 +146,11 @@ const styles = ScaledSheet.create({
     height: 70,
   },
   dealerLocationWrapper: {
-    paddingTop: "12@s",
+    paddingTop: 12,
   },
   dealerLocationText: {
     fontFamily: "Poppins-Regular",
-    fontSize: "11@s",
+    fontSize: 5,
     color: Colors.WHITE,
     textAlign: "center",
   },
@@ -122,9 +160,14 @@ const styles = ScaledSheet.create({
   },
   dealerLocationNameText: {
     fontFamily: "Poppins-Regular",
-    fontSize: "11@s",
+    fontSize: 11,
     color: Colors.WHITE,
     textAlign: "center",
+  },
+  dealerAvatar: {
+    width: 70,
+    height: 70,
+    borderRadius: 9,
   },
 });
 

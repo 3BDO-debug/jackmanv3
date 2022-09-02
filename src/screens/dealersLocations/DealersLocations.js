@@ -3,23 +3,32 @@ import {
   Text,
   ScrollView,
   Alert,
-  FlatList,
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-// context
-import { AxiosContext } from "../../context/AxiosContext";
-// styles
-import dealersLocationsStyles from "./DealersLocationsStyles";
-import CustomInput from "../../components/customInput";
-//
-import DealerContainer from "../../components/DealerContainer";
-import { Colors } from "../../constants/colors";
+import { useRecoilState } from "recoil";
 import Feather from "@expo/vector-icons/Feather";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { useSetRecoilState } from "recoil";
 import Entypo from "@expo/vector-icons/Entypo";
+// context
+import { AxiosContext } from "../../context/AxiosContext";
+// atoms
+import selectedServiceAtom from "../../recoil/selectedService";
+import popUpAlertAtom from "../../recoil/popUpAlert";
+// mock data
+import services from "../../mocks/serviceData";
+// styles
+import dealersLocationsStyles from "./DealersLocationsStyles";
+import { Colors } from "../../constants/colors";
+//
+import DealerContainer from "../../components/DealerContainer";
+import Screen from "../../components/Screen";
+import CustomInput from "../../components/customInput";
+import ServiceCard from "../../components/ServiceCard";
+import { scale } from "react-native-size-matters";
 
 // --------------------------------------------------------------------------------------
 
@@ -49,12 +58,18 @@ const Instruction = ({ text, iconComponent }) => {
 
 // -------------------------------------------------------------------------------------
 
-const DealersLocations = () => {
+const DealersLocations = ({ navigation }) => {
   const { authAxios } = useContext(AxiosContext);
-  const [dealers, setDealers] = useState([]);
+  const [dealers, setDealers] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [queriedDealers, setQueriedDealers] = useState([]);
   const [fetching, setIsFetching] = useState(false);
+  const [selectedService, setSelectedService] =
+    useRecoilState(selectedServiceAtom);
+
+  const [filteredDealersByService, setFilteredDealersByService] = useState([]);
+
+  const setPopUpAlert = useSetRecoilState(popUpAlertAtom);
 
   const fetchDealers = useCallback(async () => {
     setIsFetching(true);
@@ -65,10 +80,30 @@ const DealersLocations = () => {
       })
       .catch((error) => {
         console.log("error fetching dealers", error.response);
-        Alert.alert("Opps!!, no dealers at the moment please try again.");
+        setPopUpAlert({
+          visible: true,
+          title: "No dealers",
+          body: "We are sorry, there's no dealers at the moment.",
+          popUpActionText: "okay",
+          popUpActionHandler: () => false,
+        });
       });
     setIsFetching(false);
   }, []);
+
+  const onServicePressHandler = useCallback(
+    (serviceId) => {
+      if (selectedService && selectedService.id === serviceId) {
+        setSelectedService(null);
+      } else {
+        const selectedServiceData = services.find(
+          (service) => service.id === serviceId
+        );
+        setSelectedService(selectedServiceData);
+      }
+    },
+    [selectedService, services]
+  );
 
   useEffect(() => {
     fetchDealers();
@@ -77,23 +112,23 @@ const DealersLocations = () => {
   useEffect(() => {
     const filteredDealers =
       searchQuery.length === 0
-        ? dealers
-        : dealers.filter((dealer) =>
+        ? filteredDealersByService
+        : filteredDealersByService.filter((dealer) =>
             dealer.name.toLowerCase().includes(searchQuery.toLowerCase())
           );
     setQueriedDealers(filteredDealers);
-  }, [searchQuery, setQueriedDealers, dealers]);
+  }, [searchQuery, setQueriedDealers, filteredDealersByService]);
 
   const renderDivider = (index) => {
     let renderDivider;
-    if (dealers.length % 3 === 0) {
+    if (filteredDealersByService.length % 3 === 0) {
       renderDivider = true;
     } else {
-      if (index + 2 === dealers.length) {
+      if (index + 2 === filteredDealersByService.length) {
         renderDivider = false;
-      } else if (index + 1 === dealers.length) {
+      } else if (index + 1 === filteredDealersByService.length) {
         renderDivider = false;
-      } else if (index === dealers.length) {
+      } else if (index === filteredDealersByService.length) {
         renderDivider = false;
       } else {
         renderDivider = true;
@@ -113,80 +148,150 @@ const DealersLocations = () => {
     );
   }, [searchQuery]);
 
+  const filterDealersBySelectedService = useCallback(() => {
+    const mappedDealers = dealers?.filter((dealer) => {
+      const dealerServices = dealer.services;
+
+      for (let index = 0; index < dealerServices.length; index++) {
+        const service = dealerServices[index];
+
+        if (service.type === selectedService?.value) {
+          return dealer;
+        }
+      }
+    });
+
+    setFilteredDealersByService(mappedDealers);
+  }, [dealers, selectedService, setFilteredDealersByService]);
+
+  useEffect(() => {
+    if (selectedService) {
+      filterDealersBySelectedService();
+    } else {
+      setFilteredDealersByService(dealers);
+    }
+  }, [selectedService, dealers]);
+
   return (
-    <View style={dealersLocationsStyles.wrapper}>
-      {/* Title wrapper */}
-      <View>
-        <Text style={dealersLocationsStyles.title}>Dealer's Locations</Text>
-      </View>
-      {/* Search wrapper */}
-      <View style={dealersLocationsStyles.searchWrapper}>
-        <CustomInput
-          placeholder="Search"
-          onChangeText={(text) => setSearchQuery(text)}
-          value={searchQuery}
-          rightIcon
-          rightIconComponent={{
-            component: renderSearchIcon(),
-            callback: () => console.log("fs"),
-          }}
-        />
-      </View>
-      {/* No dealers text */}
-      {!fetching && dealers.length === 0 && (
-        <Instruction
-          text="No dealers available, please come back later!"
-          iconComponent={
-            <FontAwesome5 name="sad-cry" size={30} color={Colors.WHITE} />
-          }
-        />
-      )}
-
-      {/* No search results */}
-
-      {!fetching && queriedDealers.length === 0 && (
-        <Instruction
-          text={`No dealers matching your search result ''${searchQuery}'' `}
-          iconComponent={
-            <Entypo name="emoji-sad" size={40} color={Colors.GRAY} />
-          }
-        />
-      )}
-
-      {/* Dealers wrapper */}
-      {fetching ? (
-        <ActivityIndicator size="large" color={Colors.BUTTON} />
-      ) : (
-        <ScrollView
-          contentContainerStyle={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            paddingBottom: 100,
-          }}
-        >
-          {queriedDealers.map((dealer, index) => (
-            <View style={{ width: "33.3%" }} key={index}>
-              <DealerContainer
-                dealerData={{
-                  id: dealer?.id,
-                  title: dealer?.name,
-                  image: dealer?.image,
-                  location: dealer?.location,
-                }}
+    <Screen navigation={navigation}>
+      <View style={dealersLocationsStyles.wrapper}>
+        {/* Filter tabs */}
+        <View>
+          <ScrollView
+            horizontal
+            contentContainerStyle={{
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "flex-start",
+              marginTop: 10,
+              marginBottom: 20,
+            }}
+          >
+            {services.map((service, index) => (
+              <ServiceCard
+                key={index}
+                cardData={{ ...service }}
+                pressHandler={onServicePressHandler}
+                selectedService={selectedService}
               />
-              {dealers.length > 3 && renderDivider(index) && (
-                <View
-                  style={{
-                    backgroundColor: Colors.GRAY,
-                    height: 1,
-                    marginVertical: 10,
+            ))}
+          </ScrollView>
+        </View>
+        {/* Title wrapper */}
+        <View>
+          <Text style={dealersLocationsStyles.title}>Dealer's Locations</Text>
+        </View>
+        {/* Search wrapper */}
+        <View style={dealersLocationsStyles.searchWrapper}>
+          <CustomInput
+            placeholder="Search"
+            onChangeText={(text) => {
+              if (text.length < 25) {
+                setSearchQuery(text);
+              }
+            }}
+            value={searchQuery}
+            rightIcon
+            rightIconComponent={{
+              component: renderSearchIcon(),
+              callback: () => console.log("fs"),
+            }}
+          />
+        </View>
+        {/* No dealers text */}
+        {!fetching && dealers && dealers.length === 0 && (
+          <Instruction
+            text="No dealers available, please come back later!"
+            iconComponent={
+              <FontAwesome5 name="sad-cry" size={30} color={Colors.WHITE} />
+            }
+          />
+        )}
+
+        {/* No search results */}
+
+        {!fetching &&
+          filteredDealersByService &&
+          queriedDealers?.length === 0 && (
+            <Instruction
+              text={`No dealers matching your search result ''${searchQuery}'' `}
+              iconComponent={
+                <Entypo name="emoji-sad" size={40} color={Colors.GRAY} />
+              }
+            />
+          )}
+
+        {/* Dealers wrapper */}
+        {fetching ? (
+          <ActivityIndicator
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 20,
+            }}
+            size="large"
+            color={Colors.BUTTON}
+          />
+        ) : (
+          <ScrollView
+            contentContainerStyle={{
+              flexDirection: "row",
+              flexWrap: "wrap",
+              paddingBottom: 20,
+              alignItems: "flex-end",
+            }}
+          >
+            {queriedDealers?.map((dealer, index) => (
+              <View style={{ width: "33.3%" }} key={index}>
+                <DealerContainer
+                  selectedDealer={dealer.id}
+                  dealerData={{
+                    id: dealer?.id,
+                    title: dealer?.name,
+                    image: dealer?.image,
+                    location: dealer?.location,
                   }}
-                ></View>
-              )}
-            </View>
-          ))}
-        </ScrollView>
-        /*      <View style={{ flex: 1 }}>
+                  pressable
+                  onPressCallback={() =>
+                    navigation.navigate("DealerDetails", {
+                      clickedFromDealersLocations: true,
+                      dealerData: dealer,
+                    })
+                  }
+                />
+                {filteredDealersByService?.length > 3 && renderDivider(index) && (
+                  <View
+                    style={{
+                      backgroundColor: Colors.GRAY,
+                      height: 1,
+                      marginVertical: 1,
+                    }}
+                  ></View>
+                )}
+              </View>
+            ))}
+          </ScrollView>
+          /*      <View style={{ flex: 1 }}>
           <ScrollView
             contentContainerStyle={{
               flexDirection: "row",
@@ -206,8 +311,8 @@ const DealersLocations = () => {
             ))}
           </ScrollView>
         </View> */
-      )}
-      {/*  <View style={{ flex: 1 }}>
+        )}
+        {/*  <View style={{ flex: 1 }}>
         <FlatList
           data={queriedDealers}
           numColumns={3}
@@ -224,7 +329,8 @@ const DealersLocations = () => {
           )}
         />
       </View> */}
-    </View>
+      </View>
+    </Screen>
   );
 };
 

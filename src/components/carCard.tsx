@@ -1,54 +1,53 @@
-import React, { FC, useContext } from 'react';
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { Colors } from '../constants/colors';
-import { scaleHeightSize } from '../styles/mixins';
-import CustomText from './customText';
-import TextBtn from './textBtn';
-import Swipeout from 'react-native-swipeout';
-import { DeleteIcon, EditIcon } from '../constants/svg';
-import { useDispatch } from 'react-redux';
-import {
-  FETCH,
-  SET_CARS,
-  SET_CAR_HISTORY,
-  SET_SELECTED_CAR,
-} from '../redux/actionTypes';
-import payload from '../api/payload';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import carCardAtom from '../recoil/carCard';
-import { AxiosContext } from '../context/AxiosContext';
-import { useNavigation } from '@react-navigation/native';
-import carHistoryAtom from '../recoil/carHistory';
+import React, { FC, useContext } from "react";
+import { StyleSheet, View } from "react-native";
+import { Colors } from "../constants/colors";
+import { scaleHeightSize } from "../styles/mixins";
+import CustomText from "./customText";
+import TextBtn from "./textBtn";
+import Swipeout from "react-native-swipeout";
+import { DeleteIcon, EditIcon } from "../constants/svg";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import carCardAtom from "../recoil/carCard";
+import { AxiosContext } from "../context/AxiosContext";
+import { useNavigation } from "@react-navigation/native";
+import carHistoryAtom from "../recoil/carHistory";
+import popUpAlertAtom from "../recoil/popUpAlert";
 
-interface CarCardProps {
-  containerStyle?: object;
-  item: any;
-  onHistoryPress?: (id: number) => void;
-  onEditPress?: () => void;
-}
-
-const CarCard: FC<CarCardProps> = ({
+const CarCard = ({
   containerStyle,
   item,
   onHistoryPress,
   onEditPress,
+  fetchCars,
 }) => {
-  const dispatch = useDispatch();
   const { authAxios } = useContext(AxiosContext);
+  const setpopUp = useSetRecoilState(popUpAlertAtom);
 
   const deleteCarRequest = async () => {
-    await authAxios.delete(`/car/remove/${item?.id}`).then(() => Alert.alert("Success", "Car had been deleted successfully.")).catch((error) => {
-      console.log("error deleting car", error);
-      Alert.alert("Error", "Opps!!, somthing wrong happened deleting car.");
+    await authAxios
+      .delete(`/car/remove/${item?.id}`)
+      .then(() =>
+        setpopUp({
+          visible: true,
+          title: "Car deleted",
+          body: "Car has been successfully deleted.",
+          popUpActionText: "okay",
+          popUpActionHandler: () => false,
+        })
+      )
+      .catch((error) => {
+        console.log("error deleting car", error);
+        setpopUp({
+          visible: true,
+          title: "Error",
+          body: "Sorry, something wrong happened while trying to delete car.",
+          popUpActionText: "try again",
+          popUpActionHandler: () => false,
+        });
+      });
 
-    })
-  }
+    await fetchCars();
+  };
 
   const navigation = useNavigation();
 
@@ -63,38 +62,38 @@ const CarCard: FC<CarCardProps> = ({
       backgroundColor: Colors.BACKGROUND,
       onPress: () => {
         if (item.reserved)
-          Alert.alert("Notice", "cannot delete this car: this car has a reservation")
+          setpopUp({
+            visible: true,
+            title: "Notice!",
+            body: "You cannot delete this car, car has an already on going reservation",
+            popUpActionText: "okay",
+            popUpActionHandler: () => false,
+          });
         else
-          Alert.alert('', 'Are you sure to delete it?', [
-            {
-              text: 'Cancel',
-              onPress: () => { },
-              style: 'cancel',
-            },
-            {
-              text: 'OK',
-              onPress: () => {
-                deleteCarRequest();
-              },
-            },
-          ]);
+          setpopUp({
+            visible: true,
+            title: "Confirmation",
+            body: "This car is about to be deleted, are you sure you want to continue ?",
+            popUpActionText: "Continue",
+            popUpActionHandler: () => deleteCarRequest(),
+          });
       },
     },
     {
       component: (
-        <View style={[styles.hideBtn, { backgroundColor: 'gray' }]}>
+        <View style={[styles.hideBtn, { backgroundColor: "gray" }]}>
           <EditIcon />
           <CustomText text="Edit" size={10} />
         </View>
       ),
       backgroundColor: Colors.BACKGROUND,
       onPress: () => {
-        dispatch({ type: SET_SELECTED_CAR, data: item });
-        if (onEditPress) onEditPress();
+        if (onEditPress) {
+          navigation.navigate("EditCar", { carData: item });
+        }
       },
     },
   ];
-
 
   const [swipedCarCard, setSwipedCarCard] = useRecoilState(carCardAtom);
   const setCarHistory = useSetRecoilState(carHistoryAtom);
@@ -110,14 +109,13 @@ const CarCard: FC<CarCardProps> = ({
     >
       {item.carType ? (
         <View style={[styles.container, containerStyle]}>
-          <CustomText
-            text={item?.carModel?.manufacturer}
-            color="placeholder"
-          />
-
           <View style={styles.bodyContainer}>
             <View style={styles.typeAndHistory}>
-              <CustomText text={item?.manufacturer?.name} color="text1" size={16} />
+              <CustomText
+                text={item?.manufacturer?.name}
+                color="text1"
+                size={16}
+              />
 
               <TextBtn
                 text="History"
@@ -152,34 +150,35 @@ export default CarCard;
 
 const styles = StyleSheet.create({
   container: {
-    height: scaleHeightSize(80),
     backgroundColor: Colors.WHITE,
     borderRadius: 20,
     paddingHorizontal: 12,
+    justifyContent: "center",
   },
   bodyContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   historyBtn: {
     marginLeft: 16,
   },
   typeAndHistory: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 15,
   },
   hideBtn: {
     width: scaleHeightSize(60),
     height: scaleHeightSize(60),
     borderRadius: 10,
-    backgroundColor: 'red',
-    alignItems: 'center',
-    top: 10,
+    backgroundColor: "red",
+    alignItems: "center",
     marginLeft: 5,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   hideContainer: {
-    justifyContent: 'center',
+    justifyContent: "center",
   },
 });

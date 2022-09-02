@@ -1,9 +1,9 @@
-import React, { FC } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../constants/colors';
-import { scaleHeightSize } from '../styles/mixins';
-import CustomText from './customText';
-import TextBtn from './textBtn';
+import React, { FC } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Colors } from "../constants/colors";
+import { scaleHeightSize } from "../styles/mixins";
+import CustomText from "./customText";
+import TextBtn from "./textBtn";
 import moment from "moment";
 
 interface LatestQrCardProps {
@@ -17,7 +17,10 @@ const LatestQrCard: FC<LatestQrCardProps> = ({
   item,
   onShowPress,
 }) => {
-
+  const bookingTime =
+    item.status === "approved"
+      ? moment(item.selectedDate).add(-2, "hours").format("hh:mm:A")
+      : item.time;
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -29,7 +32,7 @@ const LatestQrCard: FC<LatestQrCardProps> = ({
         />
 
         <CustomText
-          text={item.time}
+          text={bookingTime}
           color="text1"
           size={11}
           style={styles.timeText}
@@ -37,7 +40,13 @@ const LatestQrCard: FC<LatestQrCardProps> = ({
       </View>
 
       <View style={styles.bodyContainer}>
-        <CustomText text={new Date(item.requestedDates[0]).toDateString()} color="text1" size={16} />
+        <CustomText
+          text={new Date(
+            item.selectedDate || item.requestedDates[0]
+          ).toDateString()}
+          color="text1"
+          size={16}
+        />
 
         <TextBtn
           text="Show"
@@ -65,20 +74,20 @@ const styles = StyleSheet.create({
     // height: scaleHeightSize(80),
   },
   bodyContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   historyBtn: {
     marginLeft: 16,
   },
   headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   timeText: {
-    textAlign: 'center',
+    textAlign: "center",
   },
   nameText: {
     flex: 1,

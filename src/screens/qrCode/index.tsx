@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import QrCodeView from "./view";
+import Screen from "../../components/Screen";
 
 interface QrCodeProps {
     navigation: NavigationProp<ParamListBase>
@@ -8,7 +9,9 @@ interface QrCodeProps {
 
 const QrCode: FC<QrCodeProps> = ({ navigation }) => {
     return (
-        <QrCodeView navigation={navigation} />
+        <Screen navigation={navigation}>
+            <QrCodeView navigation={navigation} />
+        </Screen>
     )
 }
 

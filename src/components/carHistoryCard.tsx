@@ -1,9 +1,9 @@
-import moment from 'moment';
-import React, { FC } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Colors } from '../constants/colors';
-import { scaleHeightSize } from '../styles/mixins';
-import CustomText from './customText';
+import moment from "moment";
+import React, { FC } from "react";
+import { StyleSheet, View } from "react-native";
+import { Colors } from "../constants/colors";
+import { scaleHeightSize } from "../styles/mixins";
+import CustomText from "./customText";
 
 interface CarHistoryCardProps {
   containerStyle?: object;
@@ -26,7 +26,7 @@ const CarHistoryCard: FC<CarHistoryCardProps> = ({ containerStyle, item }) => {
         <CustomText text={item.dealer.name} color="text1" size={16} />
 
         <CustomText
-          text={moment(item.startTime).format('D MMM YYYY')}
+          text={moment(item.selectedDate).format("D MMM YYYY")}
           color="button"
         />
       </View>
@@ -46,21 +46,21 @@ const styles = StyleSheet.create({
     marginBottom: scaleHeightSize(10),
   },
   bodyContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   historyBtn: {
     marginLeft: 16,
   },
   headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   timeText: {
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
   },
   nameText: {
     flex: 1,

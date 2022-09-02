@@ -1,6 +1,5 @@
 import React, { createContext, useState } from "react";
-import * as Keychain from "react-native-keychain";
-import { useRecoilState, useResetRecoilState } from "recoil";
+import { useResetRecoilState } from "recoil";
 import authAtom from "../recoil/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -17,7 +16,8 @@ const AuthProvider = ({ children }) => {
   });
 
   const logout = async () => {
-    AsyncStorage.clear();
+    await AsyncStorage.removeItem("refreshToken");
+    await AsyncStorage.removeItem("accessToken");
     setAuthState({
       accessToken: null,
       refreshToken: null,

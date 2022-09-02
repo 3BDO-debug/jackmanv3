@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState } from "react";
 import {
   KeyboardTypeOptions,
   ReturnKeyTypeOptions,
@@ -6,11 +6,11 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { Colors } from '../constants/colors';
-import { ShowPass, NotShowPass } from '../constants/svg';
-import { scaleHeightSize } from '../styles/mixins';
-import CustomText from './customText';
+} from "react-native";
+import { Colors } from "../constants/colors";
+import { ShowPass, NotShowPass } from "../constants/svg";
+import { scaleHeightSize } from "../styles/mixins";
+import CustomText from "./customText";
 
 interface InputProps {
   placeholder?: string;
@@ -34,20 +34,19 @@ interface InputProps {
   onKeyPress?: any;
   onFocus?: () => void;
   rightIcon: boolean;
-  rightIconComponent: any
-
+  rightIconComponent: any;
 }
 
 const CustomInput: FC<InputProps> = ({
   placeholder,
   containerStyle,
-  onChangeText = () => { },
-  keyboardType = 'default',
+  onChangeText = () => {},
+  keyboardType = "default",
   autoFocus = false,
   editable = true,
   inputStyle,
   leftIcon,
-  fontFamily = 'regular',
+  fontFamily = "regular",
   value,
   password,
   error,
@@ -55,32 +54,32 @@ const CustomInput: FC<InputProps> = ({
   required,
   inputRef,
   maxLength,
-  onSubmitEditing = () => { },
-  returnKeyType = 'default',
+  onSubmitEditing = () => {},
+  returnKeyType = "default",
   onKeyPress,
   onFocus,
   rightIcon,
-  rightIconComponent
+  rightIconComponent,
 }) => {
   const chooseFontFamily = (font: string) => {
     switch (font) {
-      case 'extraBold':
-        return 'Poppins-ExtraBold';
-      case 'bold':
-        return 'Poppins-Bold';
-      case 'semiBold':
-        return 'Poppins-SemiBold';
-      case 'medium':
-        return 'Poppins-Medium';
-      case 'regular':
-        return 'Poppins-Regular';
+      case "extraBold":
+        return "Poppins-ExtraBold";
+      case "bold":
+        return "Poppins-Bold";
+      case "semiBold":
+        return "Poppins-SemiBold";
+      case "medium":
+        return "Poppins-Medium";
+      case "regular":
+        return "Poppins-Regular";
 
       default:
         break;
     }
   };
 
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const [showPassword, setShowPassword] = useState(true);
 
   return (
@@ -90,7 +89,7 @@ const CustomInput: FC<InputProps> = ({
 
         <TextInput
           ref={inputRef}
-          onChangeText={text => {
+          onChangeText={(text) => {
             setText(text);
             onChangeText(text);
           }}
@@ -123,25 +122,29 @@ const CustomInput: FC<InputProps> = ({
             style={styles.showPassTouch}
             onPress={() => {
               setShowPassword(!showPassword);
-            }}>
+            }}
+          >
             {showPassword ? <NotShowPass /> : <ShowPass />}
           </TouchableOpacity>
         )}
 
-        {rightIcon && <TouchableOpacity
-          activeOpacity={0.75}
-          style={styles.showPassTouch}
-          onPress={() => {
-            rightIconComponent?.callback
-          }}>
-          {rightIconComponent?.component}
-        </TouchableOpacity>}
+        {rightIcon && (
+          <TouchableOpacity
+            activeOpacity={0.75}
+            style={styles.showPassTouch}
+            onPress={() => {
+              rightIconComponent?.callback;
+            }}
+          >
+            {rightIconComponent?.component}
+          </TouchableOpacity>
+        )}
 
         {required && (
           <View style={styles.star}>
             <CustomText
               text="*"
-              color={error ? 'red' : 'placeholder'}
+              color={error ? "red" : "placeholder"}
               size={11}
             />
           </View>
@@ -152,7 +155,7 @@ const CustomInput: FC<InputProps> = ({
           <CustomText
             text={caption}
             fontFamily="regular"
-            color={error ? 'red' : 'placeholder'}
+            color={error ? "red" : "placeholder"}
             size={11}
             style={styles.text}
           />
@@ -166,9 +169,9 @@ export default CustomInput;
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
     borderRadius: 20,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingVertical: 0,
   },
   textInput: {
@@ -183,31 +186,32 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   textInputView: {
-    width: '100%',
-    justifyContent: 'center',
+    width: "100%",
+    justifyContent: "center",
   },
   showPassTouch: {
-    position: 'absolute',
+    position: "absolute",
     right: 0,
-    height: '100%',
+    height: "100%",
     width: 60,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
+    justifyContent: "center",
+    alignItems: "flex-end",
     paddingRight: 17,
   },
   textView: {
-    width: '100%',
+    width: "100%",
   },
   leftIconView: {
-    position: 'absolute',
+    position: "absolute",
     zIndex: 1,
     left: 15,
+    marginHorizontal: 20,
   },
   star: {
-    position: 'absolute',
+    position: "absolute",
     right: 17,
     height: 52,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

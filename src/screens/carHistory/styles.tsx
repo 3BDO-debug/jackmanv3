@@ -8,6 +8,7 @@ const createStyles = () =>
       backgroundColor: Colors.BACKGROUND,
       paddingHorizontal: 20,
       flex: 1,
+      marginTop:40
     },
     contentContainer: {},
     logo: {

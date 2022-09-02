@@ -1,200 +1,315 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { View, Alert, Platform } from "react-native";
-import createStyles from "./styles";
-import { Arrow } from "../../constants/svg";
-import CustomButton from "../../components/customButton";
-import { Colors } from "../../constants/colors";
-import CalendarPicker from "react-native-calendar-picker";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, Platform, Alert } from "react-native";
+import { Calendar } from "react-native-calendars";
 import moment from "moment";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { TimePickerModal } from "react-native-paper-dates";
+// theme
+import { Colors } from "../../constants/colors";
+// components
+import CustomText from "../../components/customText";
+import AlertModal from "../../components/__dateAndTime/AlertModal";
+import CustomButton from "../../components/customButton";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import bookingAtom from "../../recoil/booking";
+import popUpAlertAtom from "../../recoil/popUpAlert";
 
-const DateView = ({
-  navigation,
-  onPress,
-  selectedDate,
+// ------------------------------------------------------------------------------------------------------------------------------------
 
-  dateSelected,
-  timeSelected,
-}) => {
-  const styles = useMemo(() => createStyles(), []);
+const calendarTheme = {
+  calendarBackground: "transparent",
+  disabledDotColor: "yellow",
+  textDisabledColor: Colors.PLACEHOLDER,
+  dayTextColor: Colors.WHITE,
+  todayTextColor: Colors.WHITE,
+  todayBackgroundColor: Colors.GRAY,
+  monthTextColor: Colors.WHITE,
+  arrowColor: Colors.WHITE,
+  selectedDayTextColor: Colors.WHITE,
+  selectedDayBackgroundColor: Colors.BUTTON,
+};
 
-  const [closedDates, setClosedDates] = useState();
+// ------------------------------------------------------------------------------------------------------------------------------------
 
-  const [numberOfSelectedDates, setNumberOfSelectedDates] = useState(0);
-  const setCurrentSelectedDate = useState(new Date())[1];
-  const [selectedDates, setSelectedDates] = useState([]);
-  const [currentSelectedTime, setCurrentSelectedTime] = useState(
-    new Date(Date.now())
+const DateView = ({ onPress }) => {
+  const [selectedDates, setSelectedDates] = useState({});
+  const [calendarMinDate, setCalendarMinDate] = useState("2022-06-14");
+  const [calendarMaxDate, setCalendarMaxDate] = useState("2022-06-14");
+  const [instructionText, setInstructionText] = useState(
+    "Please select three dates for booking"
   );
-
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [numberOfTriggeredDateSelection, setNumberOfTriggeredDateSelection] =
-    useState(0);
-
-  // Recoil
+  const [timePickerIsTriggered, triggerTimePicker] = useState(false);
+  const [selectedTimes, setSelectedTimes] = useState([]);
   const [booking, setBooking] = useRecoilState(bookingAtom);
+  const setPopUpAlert = useSetRecoilState(popUpAlertAtom);
+  const [instructionPopUpIsTriggered, triggerInstructionPopUp] =
+    useState(false);
 
-  const onDateChange = useCallback(
-    (date) => {
-      if (selectedDates.length >= 3) {
-        Alert.alert(
-          "OPPPS!!",
-          "You already had selected three dates either reset your selection or press continue."
-        );
+  /* Dismiss handler for the time picker modal */
+
+  const deleteLastSelectedDateAfterTimePickerDismiss = useCallback(() => {
+    const selectedDatesCopy = { ...selectedDates };
+    const selectedDatesData = Object.keys(selectedDatesCopy);
+    const lastSelectedDate = selectedDatesData.pop();
+    delete selectedDatesCopy[lastSelectedDate];
+    setSelectedDates(selectedDatesCopy);
+  }, [selectedDates, setSelectedDates]);
+
+  const onTimePickerDismiss = useCallback(() => {
+    triggerTimePicker(false);
+    deleteLastSelectedDateAfterTimePickerDismiss();
+  }, [
+    triggerTimePicker,
+    deleteLastSelectedDateAfterTimePickerDismiss,
+    selectedDates,
+  ]);
+
+  /* Time picker validator for the schema time ranga [9:00 AM to 5:00 PM] */
+
+  const selectedTimeIsWithinTheSelectedRange = useCallback(
+    (time) => {
+      let proceed;
+      const startTime = moment("08:00:00", "HH:mm:ss");
+      const endTime = moment("21:00:00", "HH:mm:ss");
+      const selectedTime = moment(time, "HH:mm:ss");
+      if (selectedTime.isBetween(startTime, endTime)) {
+        proceed = true;
       } else {
-        setSelectedDates([
+        triggerTimePicker(false);
+        setPopUpAlert({
+          visible: true,
+          title: "Time not within range",
+          body: "Your selected time isn't within the working hours [ 9:00 AM - 5:00 PM ]",
+          popUpActionText: "understood",
+          popUpActionHandler: () => triggerTimePicker(true),
+        });
+
+        proceed = false;
+      }
+      return proceed;
+    },
+    [setPopUpAlert]
+  );
+
+  /* Confirm handler for the time picker modal */
+
+  const onTimePickerConfirm = (time) => {
+    const selectedTime = moment(time).format("HH:mm:ss");
+    if (selectedTimeIsWithinTheSelectedRange(selectedTime)) {
+      const selectedTimesArrayCopy = [...selectedTimes];
+      selectedTimesArrayCopy.push(moment(time).format("HH:mm:ss"));
+      setSelectedTimes(selectedTimesArrayCopy);
+      triggerTimePicker(false);
+    }
+  };
+
+  /* Validation to confirm that the user's selected date matches the required schema */
+
+  const validateDateSelection = (date) => {
+    const today = moment();
+    const convertedDateInput = moment(date.dateString);
+    const isToday = today.format("YYYY-MM-DD") === date.dateString;
+    const differenceBetweenDates = convertedDateInput.diff(today, "days");
+
+    if (isToday) {
+      setPopUpAlert({
+        visible: true,
+        title: "Warning",
+        body: "You cannot choose today as booking date, the least valid booking date is two days after today",
+        popUpActionText: "understood",
+        popUpActionHandler: () => false,
+      });
+    } else if (
+      !isToday &&
+      (differenceBetweenDates + 1 === 1 || differenceBetweenDates + 1 === 2)
+    ) {
+      setPopUpAlert({
+        visible: true,
+        title: "Notice",
+        body: "The least valid booking date is two days after today",
+        popUpActionText: "understood",
+        popUpActionHandler: () => false,
+      });
+    } else {
+      handleDateChange(date);
+    }
+  };
+
+  /* Sync the date unselection with the selected time */
+
+  const handleDateDeletion = (deletedDateIndex) => {
+    const filteredSelectedTimesArray = selectedTimes.filter(
+      (selectedTime) => selectedTime !== selectedTimes[deletedDateIndex]
+    );
+
+    setSelectedTimes(filteredSelectedTimesArray);
+  };
+
+  /* Util for finding the index of deleted date */
+
+  const dateIndexFinder = (date) => {
+    return Object.keys(selectedDates).findIndex(
+      (selectedDate) => selectedDate === date
+    );
+  };
+
+  /* Main date handler */
+
+  const handleDateChange = (date) => {
+    const selectedDaysKeys = Object.keys(selectedDates);
+    const selectedDatesCopy = { ...selectedDates };
+
+    if (
+      selectedDaysKeys.length >= 3 &&
+      !Boolean(date.dateString in selectedDates)
+    ) {
+      handleDateDeletion(dateIndexFinder(date.dateString));
+
+      delete selectedDatesCopy[selectedDaysKeys[2]];
+      setSelectedDates({
+        ...selectedDatesCopy,
+        [date.dateString]: { selected: true },
+      });
+      triggerInstructionPopUp(true);
+    } else {
+      if (date.dateString in selectedDates) {
+        handleDateDeletion(dateIndexFinder(date.dateString));
+        delete selectedDatesCopy[date.dateString];
+        setSelectedDates(selectedDatesCopy);
+      } else {
+        setSelectedDates({
           ...selectedDates,
-          { selectedDate: date, time: new Date(Date.now()) },
-        ]);
-        setCurrentSelectedDate(date);
-        setNumberOfTriggeredDateSelection(0);
-        setShowTimePicker(true);
-        setNumberOfSelectedDates(numberOfSelectedDates + 1);
+          [date.dateString]: { selected: true },
+        });
+        triggerInstructionPopUp(true);
       }
-    },
-    [selectedDates]
-  );
-
-  const defaultClosedDates = () => {
-    const disabledDates = [];
-
-    for (let index = 1; index < 3; index++) {
-      disabledDates.push(moment().add(index, "days"));
     }
-
-    setClosedDates(disabledDates);
   };
 
-  const handleNumberOFSelectedDatesAlerts = useCallback(() => {
-    if (numberOfSelectedDates === 0) {
-      Alert.alert("Notice!!", "Please note that you have to pick three dates.");
-    } else if (numberOfSelectedDates === 1) {
-      Alert.alert("Great!", "you got two more dates to pick.");
-    } else if (numberOfSelectedDates === 2) {
-      Alert.alert("Great!", "you got one more date to pick.");
-    } else if (numberOfSelectedDates === 3) {
-      Alert.alert(
-        "Great!",
-        "you have selected three dates now you can go to the next step "
-      );
+  /* Submission handler */
+
+  const actionButtonHandler = () => {
+    const bookedDates = [];
+    const mappedSelectedDates = Object.keys(selectedDates);
+    for (let index = 0; index < mappedSelectedDates.length; index++) {
+      bookedDates.push({
+        [`requestedDate${
+          index + 1
+        }`]: `${mappedSelectedDates[index]}T${selectedTimes[index]}`,
+      });
     }
-  }, [numberOfSelectedDates]);
-
-  const onTimePickerChange = useCallback(
-    (event, selectedTime) => {
-      if (selectedTime) {
-        setCurrentSelectedTime(selectedTime);
-        const selectedDatesCopy = [...selectedDates];
-        setSelectedDates(selectedDatesCopy);
-        selectedDatesCopy[numberOfSelectedDates - 1].time = currentSelectedTime;
-        setSelectedDates(selectedDatesCopy);
-        setCurrentSelectedTime(new Date(Date.now()));
-        setNumberOfTriggeredDateSelection(numberOfTriggeredDateSelection + 1);
-      }
-    },
-    [selectedDates, numberOfSelectedDates, numberOfTriggeredDateSelection]
-  );
-
-  const handleNext = () => {
-    setBooking({ ...booking, datesData: selectedDates });
-    onPress();
+    setBooking({ ...booking, bookingDates: bookedDates });
   };
 
-  useEffect(() => {
-    if (numberOfTriggeredDateSelection > 0) {
-      setShowTimePicker(false);
-      handleNumberOFSelectedDatesAlerts();
-    }
-  }, [numberOfTriggeredDateSelection, handleNumberOFSelectedDatesAlerts]);
+  /* Current date generator */
 
-  useEffect(() => {
-    defaultClosedDates();
+  const currentDateGenerator = useCallback(() => {
+    const today = moment();
+    const formattedTodayDate = today.format("YYYY-MM-DD");
+    return formattedTodayDate;
   }, []);
 
-  console.log("dsa", new Date().getDate() + 1);
+  /* Intial effect to select the calendar min and max date selection */
+
+  useEffect(() => {
+    const today = moment();
+    const todayAfterTwoMonths = moment().add(2, "M");
+    setCalendarMinDate(today.format("YYYY-MM-DD"));
+    setCalendarMaxDate(todayAfterTwoMonths.format("YYYY-MM-DD"));
+  }, []);
+
+  /* Instruction text effect  */
+
+  useEffect(() => {
+    const selectedDatesLength = selectedTimes.length;
+    if (selectedDatesLength === 3) {
+      setInstructionText("Great!, you have selected three dates successfully");
+    } else if (selectedDatesLength === 2) {
+      setInstructionText("One date remaining to select");
+    } else if (selectedDatesLength === 1) {
+      setInstructionText("Two dates remaining to select");
+    } else if (selectedDatesLength === 0) {
+      setInstructionText("Please select three dates for booking");
+    }
+  }, [selectedTimes]);
+
+  useEffect(() => {
+    if (instructionPopUpIsTriggered) {
+      setPopUpAlert({
+        visible: true,
+        title: "Attention",
+        body: "Please select hours, minutes first then toggle between AM - PM, Valid time range is from [9:00 AM - 9:00 PM]",
+        popUpActionText: "understood",
+        popUpActionHandler: () => triggerTimePicker(true),
+        customDismissHandler: () =>
+          deleteLastSelectedDateAfterTimePickerDismiss(),
+        hasCustomDismissHandler: true,
+      });
+      triggerInstructionPopUp(false);
+    }
+  }, [instructionPopUpIsTriggered, triggerInstructionPopUp]);
 
   return (
-    <View style={styles.container}>
-      {/* Reset dates button */}
-      {numberOfSelectedDates >= 3 && (
-        <View style={{ paddingTop: 10 }}>
-          <CustomButton
-            text="Reset selected dates"
-            onPress={() => {
-              setNumberOfSelectedDates(0);
-              setSelectedDates([]);
-            }}
-          />
-        </View>
-      )}
-      <View style={styles.picker}>
-        <CalendarPicker
-          months={[
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-          ]}
-          headerWrapperStyle={{}}
-          onDateChange={onDateChange}
-          textStyle={styles.text}
-          selectedDayColor={Colors.BUTTON}
-          todayBackgroundColor={Colors.GRAY}
-          todayTextStyle={{ color: "red" }}
-          selectedDayTextStyle={styles.text}
-          showDayStragglers={true}
-          previousComponent={
-            <Arrow
-              style={{ marginLeft: 10, transform: [{ rotate: "180deg" }] }}
-            />
+    <View>
+      {/* Instruction text */}
+      <View
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: 20,
+        }}
+      >
+        <CustomText color="white" text={instructionText} size={12} />
+      </View>
+      {/* Calendar */}
+      <Calendar
+        theme={calendarTheme}
+        markingType="custom"
+        minDate={calendarMinDate}
+        maxDate={calendarMaxDate}
+        enableSwipeMonths
+        onDayPress={validateDateSelection}
+        markedDates={{
+          ...selectedDates,
+          [moment().add(1, "day").format("YYYY-MM-DD")]: { disabled: true },
+          [moment().add(2, "day").format("YYYY-MM-DD")]: { disabled: true },
+        }}
+        current={currentDateGenerator()}
+        style={{ marginRight: 20 }}
+      />
+
+      {/* Time picker */}
+      <TimePickerModal
+        visible={timePickerIsTriggered}
+        onDismiss={onTimePickerDismiss}
+        onConfirm={onTimePickerConfirm}
+        label="Select time"
+        uppercase={true}
+        cancelLabel="Cancel"
+        confirmLabel="Ok"
+        animationType="slide"
+        locale="en"
+      />
+
+      {/* Action button */}
+
+      <View style={{ paddingHorizontal: 20, marginTop: 40, marginRight: 20 }}>
+        <CustomButton
+          containerStyle={{
+            backgroundColor:
+              selectedTimes.length < 3 ? Colors.PLACEHOLDER : Colors.BUTTON,
+          }}
+          onPress={() => {
+            if (Object.keys(selectedDates).length >= 3) {
+              actionButtonHandler();
+              onPress();
+            }
+          }}
+          disabled={
+            selectedTimes.length < 3 || Boolean(Object.keys(selectedDates) < 3)
           }
-          disabledDatesTextStyle={{ color: Colors.PLACEHOLDER }}
-          nextComponent={<Arrow style={{ marginRight: 10 }} />}
-          minDate={new Date().getDate() + 1}
-          maxDate={
-            new Date(
-              new Date().getFullYear(),
-              new Date().getMonth() + 2,
-              new Date().getDay()
-            )
-          }
-          restrictMonthNavigation
-          disabledDates={closedDates}
+          text="Next step"
         />
       </View>
-      {showTimePicker && (
-        <DateTimePicker
-          value={currentSelectedTime || new Date()}
-          mode="time"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          is24Hour={false}
-          onChange={onTimePickerChange}
-        />
-      )}
-      <CustomButton
-        rightIcon={<Arrow />}
-        containerStyle={[
-          styles.confirtBtn,
-          {
-            backgroundColor:
-              selectedDates.length !== 3 ? Colors.PLACEHOLDER : Colors.BUTTON,
-          },
-        ]}
-        onPress={handleNext}
-        text="CONTINUE"
-        textSize={16}
-        disabled={selectedDates.length !== 3}
-      />
     </View>
   );
 };

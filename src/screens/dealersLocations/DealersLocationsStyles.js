@@ -7,14 +7,16 @@ const dealersLocationsStyles = ScaledSheet.create({
     paddingHorizontal: "20@s",
     height: "100%",
   },
+  servicesFilter: {
+    marginBottom: 10,
+  },
   title: {
     color: Colors.WHITE,
     fontFamily: "Poppins-Bold",
-    fontSize: "25@s",
-    marginTop: "100@s",
+    fontSize: 25,
   },
   searchWrapper: {
-    paddingVertical: "40@s",
+    paddingTop: 10,
   },
 });
 

@@ -1,5 +1,5 @@
-import {StyleSheet} from 'react-native';
-import {Colors} from '../../constants/colors';
+import { StyleSheet } from "react-native";
+import { Colors } from "../../constants/colors";
 
 const createStyles = () =>
   StyleSheet.create({
@@ -11,7 +11,7 @@ const createStyles = () =>
     },
     contentContainer: {},
     logo: {
-      alignSelf: 'center',
+      alignSelf: "center",
     },
     input: {
       fontSize: 11,
@@ -31,24 +31,41 @@ const createStyles = () =>
       marginBottom: 34,
     },
     estimateHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      justifyContent: "space-between",
     },
     timeContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      justifyContent: "space-between",
       paddingHorizontal: 23,
     },
     timeElement: {
-      alignItems: 'center',
+      alignItems: "center",
     },
     carListHeader: {
-      flexDirection: 'row',
+      flexDirection: "row",
     },
     addCarBtn: {
       marginLeft: 16,
     },
     helloText: {},
+    filterByServiceWrapper: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingTop: 30,
+    },
+    filterByServiceTitle: {
+      fontFamily: "Poppins-Bold",
+      fontSize: 17,
+      color: Colors.WHITE,
+    },
+    filterByServiceValue: {
+      fontFamily: "Poppins-Regular",
+      fontSize: 14,
+      color: Colors.BUTTON,
+      marginLeft: 10,
+    },
+    servicesWrapper: {},
   });
 
 export default createStyles;

@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../constants/colors';
 import CustomButton from './customButton';
@@ -7,22 +7,26 @@ import { ArrowIcon } from '../constants/svg';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 interface FreqQuestionProps {
-    item: any
+    item: any,
+    triggeredQuestionState: any
 }
 
 const FreqQuestion: FC<FreqQuestionProps> = ({
-    item
+    item,
+    triggeredQuestionState
 }) => {
     const [ispress, setIsPress] = useState(false)
 
     const rotation = useSharedValue(0);
 
+    const [triggeredQuestion, setTriggeredQuestion] = triggeredQuestionState;
+    const [rotationAngle, setRotationAngle] = useState(0);
 
 
 
     const animatedStyle = useAnimatedStyle(() => {
         return {
-            transform: [{ rotate: `${rotation.value}deg` }],
+            transform: [{ rotate: `${rotationAngle}deg` }],
         };
     });
 
@@ -31,6 +35,62 @@ const FreqQuestion: FC<FreqQuestionProps> = ({
         Linking.openURL(link);
     }
 
+    const handleQuestionPress = () => {
+        if (item.id === triggeredQuestion) {
+            setTriggeredQuestion(null);
+
+        } else {
+            setTriggeredQuestion(item?.id);
+
+        }
+    };
+
+
+
+    useEffect(() => {
+        if (triggeredQuestion === item?.id) {
+            setRotationAngle(180);
+        } else {
+            setRotationAngle(0);
+        }
+
+    }, [triggeredQuestion])
+
+
+
+    const renderLinkComponent = () => {
+        let component: any;
+        if (item.link) {
+
+            component = (
+                <TouchableOpacity onPress={() => {
+
+                    handleLinkPress(item?.answer)
+                }}>
+                    <CustomText
+                        text={item.answer}
+                        size={10}
+                        fontFamily="regular"
+                        style={[styles.text3, { color: Colors.BUTTON }]}
+                    />
+                </TouchableOpacity>
+
+            )
+        } else {
+
+            component = (
+                <CustomText
+                    text={item.answer}
+                    color="blaceholder"
+                    size={10}
+                    fontFamily="regular"
+                    style={item?.link ? styles.linkStyle : styles.text3}
+                />
+            )
+        }
+
+        return component
+    }
 
     return (
         <View style={styles.view}>
@@ -47,38 +107,12 @@ const FreqQuestion: FC<FreqQuestionProps> = ({
                 textFontFamily="regular"
                 textColor="black"
                 onPress={() => {
-                    setIsPress(!ispress)
-                    if (ispress)
-                        rotation.value = withTiming(0)
-                    else
-                        rotation.value = withTiming(180)
+                    handleQuestionPress();
+
                 }}
             />
 
-            {ispress &&
-                item.link ?
-                <TouchableOpacity onPress={() => {
-
-                    handleLinkPress(item?.answer)
-                }}>
-                    <CustomText
-                        text={item.answer}
-                        size={10}
-                        fontFamily="regular"
-                        style={[styles.text3, { color: Colors.BUTTON }]}
-                    />
-                </TouchableOpacity>
-                : <CustomText
-                    text={item.answer}
-                    color="blaceholder"
-                    size={10}
-                    fontFamily="regular"
-                    style={styles.text3}
-
-
-
-                />
-            }
+            {triggeredQuestion === item.id && renderLinkComponent()}
         </View>
 
     )
@@ -96,7 +130,18 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 18,
         marginBottom: 25,
-        height: 52,
+        height: 80,
+        maxWidth: "90%",
+        minWidth: "90%"
+
+    },
+    linkStyle: {
+
+        marginBottom: 30,
+        paddingLeft: 20,
+        color: Colors.BUTTON,
+        textDecorationLine: 'underline'
+
 
     },
     btn: {

@@ -1,20 +1,18 @@
-import {StyleSheet} from 'react-native';
-import {Colors} from '../../constants/colors';
+import { StyleSheet } from "react-native";
+import { Colors } from "../../constants/colors";
 
 const createStyles = () =>
   StyleSheet.create({
     container: {
       backgroundColor: Colors.BACKGROUND,
-       paddingHorizontal: 20,
-      flex: 1,
+      paddingHorizontal: 20,
       paddingTop: 100,
     },
     contentContainer: {
       paddingTop: 50,
-      flex: 1,
     },
     logo: {
-      alignSelf: 'center',
+      alignSelf: "center",
     },
     Btn: {
       marginTop: 37,
@@ -30,48 +28,48 @@ const createStyles = () =>
       marginBottom: 34,
     },
     estimateHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      justifyContent: "space-between",
     },
     timeContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      justifyContent: "space-between",
       paddingHorizontal: 23,
     },
     timeElement: {
-      alignItems: 'center',
+      alignItems: "center",
     },
     carListHeader: {
-      flexDirection: 'row',
+      flexDirection: "row",
     },
     stepsContainer: {
       paddingHorizontal: 30,
     },
     stepsViewContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
     },
     stepView: {
       width: 40,
       height: 40,
       borderRadius: 20,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
     },
     line: {
       height: 2,
       flex: 1,
       marginHorizontal: 5,
       backgroundColor: Colors.WHITE,
-      alignSelf: 'flex-start',
+      alignSelf: "flex-start",
       marginTop: 19,
     },
     stepTextContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      justifyContent: "space-between",
     },
     stepContainer: {
-      alignItems: 'center',
+      alignItems: "center",
     },
     cardContainer: {
       backgroundColor: Colors.WHITE,
@@ -82,15 +80,15 @@ const createStyles = () =>
       marginTop: 20,
     },
     cardHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
     },
     cardBody: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       marginTop: 8,
-      justifyContent: 'space-between',
+      justifyContent: "space-between",
     },
     inputContaier: {
       height: 25,
@@ -105,15 +103,15 @@ const createStyles = () =>
       paddingLeft: 10,
     },
     rowItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       flex: 1,
-      justifyContent: 'flex-end',
-      // backgroundColor: 'red',
+      justifyContent: "flex-end",
     },
     textItem: {
       marginLeft: 10,
       flex: 1,
+      maxWidth: "100%",
     },
     location: {
       marginLeft: 10,

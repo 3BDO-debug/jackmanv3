@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import LatestQrView from "./view";
+import Screen from "../../components/Screen";
 
 interface LatestQrProps {
     navigation: NavigationProp<ParamListBase>
@@ -8,7 +9,9 @@ interface LatestQrProps {
 
 const LatestQr: FC<LatestQrProps> = ({ navigation }) => {
     return (
-        <LatestQrView navigation={navigation} />
+        <Screen navigation={navigation}>
+            <LatestQrView navigation={navigation} />
+        </Screen>
     )
 }
 

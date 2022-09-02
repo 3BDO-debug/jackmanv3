@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import PersonalView from "./view";
+import Screen from "../../components/Screen";
 
 interface FrequentlyqProps {
     navigation: NavigationProp<ParamListBase>
@@ -8,7 +9,9 @@ interface FrequentlyqProps {
 
 const Frequentlyq: FC<FrequentlyqProps> = ({ navigation }) => {
     return (
-        <PersonalView navigation={navigation} />
+        <Screen navigation={navigation} hideFooter>
+            <PersonalView />
+        </Screen>
     )
 }
 
